@@ -187,17 +187,18 @@ class WC_Gokada_Delivery
                 $pickup_country = 'NG';
             }
 
-            $pickup_delay = $this->settings['pickup_delay'];
+            $pickup_delay = $this->settings['pickup_delay_same'];
             $pickup_date = date('Y-m-d H:i:s');
+            $pickup_datetime = null;
 
             if ($pickup_delay < 0) {
                 $pickup_delay = 0;
             }
             if ($pickup_delay >= 1) {
-                $pickup_date = date('Y-m-d H:i:s', date(strtotime("+" . $pickup_delay . " day", strtotime($pickup_date))));
+                $pickup_datetime = date('Y-m-d H:i:s', date(strtotime("+" . $pickup_delay . " hour", strtotime($pickup_date))));
             }
 
-            $delivery_date = date('Y-m-d H:i:s', date(strtotime('+ 4 hour', strtotime($pickup_date))));
+            // $delivery_date = date('Y-m-d H:i:s', date(strtotime('+ 4 hour', strtotime($pickup_date))));
 
             $api = $this->get_api();
 
@@ -226,7 +227,8 @@ class WC_Gokada_Delivery
                 'pickup_email'            => $sender_email,
                 'delivery_name'           => $receiver_name,
                 'delivery_phone'          => $receiver_phone,
-                'delivery_email'          => $receiver_email
+                'delivery_email'          => $receiver_email,
+                'pickup_datetime'         => $pickup_datetime
             );
             error_log(print_r($params, true));
 
@@ -248,7 +250,7 @@ class WC_Gokada_Delivery
             update_post_meta($order_id, 'gokada_delivery_order_id', $res['order_id']);
             update_post_meta($order_id, 'gokada_delivery_pickup_tracking_url', $status['pickup_tracking_link']);
             update_post_meta($order_id, 'gokada_order_status', $this->statuses[$status['status']]); // UNASSIGNED
-            update_post_meta($order_id, 'gokada_delivery_delivery_tracking_url', $res['dropoff_tracking_links'][0]);
+            update_post_meta($order_id, 'gokada_delivery_delivery_tracking_url', $status['dropoff_tracking_links'][0]);
             update_post_meta($order_id, 'gokada_delivery_order_response', $res);
             $note = sprintf(__('Shipment scheduled via Gokada delivery (Order Id: %s)'), $res['order_id']);
             $order->add_order_note($note);
