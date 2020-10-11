@@ -2,17 +2,15 @@
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-if (class_exists('Kwik_Delivery_Shipping_Method')) return; // Stop if the class already exists
-
 /**
- * Kwik Delivery Shipping Method Class
+ * gokada Delivery Shipping Method Class
  *
- * Provides real-time shipping rates from Kwik delivery and handle order requests
+ * Provides real-time shipping rates from gokada delivery and handle order requests
  *
  * @since 1.0
  * @extends \WC_Shipping_Method
  */
-class WC_Kwik_Delivery_Shipping_Method extends WC_Shipping_Method
+class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 {
 	/**
 	 * Constructor.
@@ -21,10 +19,10 @@ class WC_Kwik_Delivery_Shipping_Method extends WC_Shipping_Method
 	 */
 	public function __construct($instance_id = 0)
 	{
-		$this->id                 = 'kwik_delivery';
+		$this->id                 = 'gokada_delivery';
 		$this->instance_id 		  = absint($instance_id);
-		$this->method_title       = __('Kwik Delivery');
-		$this->method_description = __('Get your parcels delivered better, cheaper and quicker via Kwik Delivery');
+		$this->method_title       = __('Gokada Delivery');
+		$this->method_description = __('Get your parcels delivered better, cheaper and quicker via gokada Delivery');
 
 		$this->supports  = array(
 			'settings',
@@ -33,14 +31,15 @@ class WC_Kwik_Delivery_Shipping_Method extends WC_Shipping_Method
 
 		$this->init();
 
-		$this->title   = __('Kwik Delivery');
+		$this->title = 'Gokada Delivery';
+
 		$this->enabled = $this->get_option('enabled');
 	}
 
 	/**
 	 * Init.
 	 *
-	 * Initialize kwik delivery shipping method.
+	 * Initialize gokada delivery shipping method.
 	 *
 	 * @since 1.0.0
 	 */
@@ -56,37 +55,115 @@ class WC_Kwik_Delivery_Shipping_Method extends WC_Shipping_Method
 	/**
 	 * Init fields.
 	 *
-	 * Add fields to the kwik delivery settings page.
+	 * Add fields to the gokada delivery settings page.
 	 *
 	 * @since 1.0.0
 	 */
 	public function init_form_fields()
 	{
+		$pickup_state_code = WC()->countries->get_base_state();
+		$pickup_country_code = WC()->countries->get_base_country();
+
+		$pickup_city = WC()->countries->get_base_city();
+		$pickup_state = WC()->countries->get_states($pickup_country_code)[$pickup_state_code];
+		$pickup_base_address = WC()->countries->get_base_address();
+
 		$this->form_fields = array(
 			'enabled' => array(
-				'title' 		=> __('Enable/Disable'),
-				'type' 			=> 'checkbox',
-				'label' 		=> __('Enable this shipping method'),
-				'default' 		=> 'no',
-			),
-			'email' => array(
-				'title'       => 	__('Email Address'),
-				'type'        => 	'email',
-				'description' => 	__('Your Kwik delivery account email', 'woocommerce-kwik-delivery'),
-				'default'     => 	__('')
-			),
-			'password' => array(
-				'title'       => 	__('Password'),
-				'type'        => 	'password',
-				'description' => 	__('Your Kwik delivery account password', 'woocommerce-kwik-delivery'),
-				'default'     => 	__('')
+				'title' 	=> __('Enable/Disable'),
+				'type' 		=> 'checkbox',
+				'label' 	=> __('Enable this shipping method'),
+				'default' 	=> 'no',
 			),
 			'mode' => array(
 				'title'       => 	__('Mode'),
+				'hidden'		  => 'true',
 				'type'        => 	'select',
-				'description' => 	__('Default is (Sandbox), choose (Live) when your ready to start processing orders via kwik delivery'),
+				'description' => 	__('Default is (Sandbox), choose (Live) when your ready to start processing orders via gokada delivery'),
 				'default'     => 	'sandbox',
-				'options'     => 	array("sandbox" => "Sandbox", "live" => "Live"),
+				'options'     => 	array('sandbox' => 'Sandbox', 'live' => 'Live'),
+			),
+			'token' => array(
+				'title'       => 	__('Developer Token'),
+				'type'        => 	'password',
+				'description'       => __( 'Here’s how to get Gokada Developer API token:<br/>
+											1. Login into your Gokada Business Account<br/>
+											2. Copy the Key from your profile and paste it here.' ),
+				'default'     => 	__('')
+			),
+			'shipping_is_scheduled_on' => array(
+				'title'        =>	__('Schedule shipping task'),
+				'type'         =>	'select',
+				'description'  =>	__('Select when the shipment will be created.'),
+				'default'      =>	__('order_submit'),
+				'desc_tip'          => false,
+				'options'      =>	array('order_submit' => 'Order submit with complete payment(Auto Delivery)', 'scheduled_submit' => 'Schedule a time interval to submit all pending orders')
+			),
+			'shipping_handling_fee' => array(
+				'title'       => 	__('Additional handling fee applied'),
+				'type'        => 	'text',
+				'description' => 	__("Additional handling fee applied"),
+				'default'     => 	__('0')
+			),
+			'shipping_payment_method' => array(
+				'title'        =>	__('Payment method for shipment'),
+				'type'         =>	'select',
+				'description'  =>	__('Select payment method.'),
+				'default'      =>	__('1'),
+				'options'      =>	array('1' => 'Wallet payment', '2' => 'Cash payment on pickup')
+			),
+			'pickup_delay_same' => array(
+				'title'       => 	__('Enter pickup delay time in hours(Auto delivery only)'),
+				'type'        => 	'text',
+				'description' => 	__("If pickup time should be delayed by some hours. Defaults to 0"),
+				'default'     => 	__('0')
+			),
+			'pickup_schedule_time' => array(
+				'title'       => 	__('Enter Daily pickup schedule time in hours(Scheduled Delivery Only)'),
+				'type'        => 	'time',
+			),
+			'pickup_country' => array(
+				'title'       => 	__('Pickup Country'),
+				'type'        => 	'select',
+				'description' => 	__('gokada delivery/pickup is only available for Nigeria'),
+				'default'     => 	'NG',
+				'options'     => 	array("NG" => "Nigeria", "" => "Please Select"),
+			),
+			'pickup_state' => array(
+				'title'       => 	__('Pickup State'),
+				'type'        => 	'text',
+				'description' => 	__('Must be the pickup location’s state or territory.'),
+				'default'     => 	__($pickup_state)
+			),
+			'pickup_city' => array(
+				'title'       => 	__('Pickup City'),
+				'type'        => 	'text',
+				'description' => 	__('The local area where the parcel will be picked up.'),
+				'default'     => 	__($pickup_city)
+			),
+			'pickup_base_address' => array(
+				'title'       => 	__('Pickup Address'),
+				'type'        => 	'text',
+				'description' => 	__('The street address where the parcel will be picked up.'),
+				'default'     => 	__($pickup_base_address)
+			),
+			'sender_name' => array(
+				'title'       => 	__('Sender Name'),
+				'type'        => 	'text',
+				'description' => 	__("Sender Name"),
+				'default'     => 	__('')
+			),
+			'sender_phone_number' => array(
+				'title'       => 	__('Sender Phone Number'),
+				'type'        => 	'text',
+				'description' => 	__('Must be a valid phone number starting with +234'),
+				'default'     => 	__('')
+			),
+			'sender_email' => array(
+				'title'       => 	__('Sender Email'),
+				'type'        => 	'text',
+				'description' => 	__('Must be a valid email address'),
+				'default'     => 	__('')
 			),
 		);
 	}
@@ -108,19 +185,6 @@ class WC_Kwik_Delivery_Shipping_Method extends WC_Shipping_Method
 			return;
 		}
 
-		$api = wc_kwik_delivery()->get_api();
-
-		$pickup_state_code = WC()->countries->get_base_state();
-		$pickup_country_code = WC()->countries->get_base_country();
-
-		$pickup_city = WC()->countries->get_base_city();
-		$pickup_state = WC()->countries->get_states($pickup_country_code)[$pickup_state_code];
-		$pickup_country = WC()->countries->get_countries()[$pickup_country_code];
-		$pickup_base_address = WC()->countries->get_base_address();
-
-		$pickup_address = trim("$pickup_base_address $pickup_city, $pickup_state, $pickup_country");
-		$pickup_coordinate = $api->get_lat_lng($pickup_address);
-
 		$delivery_country_code = $package['destination']['country'];
 		$delivery_state_code = $package['destination']['state'];
 		$delivery_city = $package['destination']['city'];
@@ -129,16 +193,29 @@ class WC_Kwik_Delivery_Shipping_Method extends WC_Shipping_Method
 		$delivery_state = WC()->countries->get_states($delivery_country_code)[$delivery_state_code];
 		$delivery_country = WC()->countries->get_countries()[$delivery_country_code];
 
+		if ('Lagos' !== $delivery_state) {
+			wc_add_notice('Gokada Delivery only available within Lagos', 'error');
+			return;
+		}
+
+		$api = wc_gokada_delivery()->get_api();
+
+		$pickup_city = $this->get_option('pickup_city');
+		$pickup_state = $this->get_option('pickup_state');
+		$pickup_base_address = $this->get_option('pickup_base_address');
+		$pickup_country = WC()->countries->get_countries()[$this->get_option('pickup_country')];
+
 		$delivery_address = trim("$delivery_base_address $delivery_city, $delivery_state, $delivery_country");
 		$delivery_coordinate = $api->get_lat_lng($delivery_address);
+		if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
+			$delivery_coordinate = $api->get_lat_lng("$delivery_city, $delivery_state, $delivery_country");
+		}
 
-		$pickups = array(
-			array(
-				"address" => $pickup_address,
-				"latitude" => $pickup_coordinate['lat'],
-				"longitude" => $pickup_coordinate['long']
-			)
-		);
+		$pickup_address = trim("$pickup_base_address $pickup_city, $pickup_state, $pickup_country");
+		$pickup_coordinate = $api->get_lat_lng($pickup_address);
+		if (!isset($pickup_coordinate['lat']) && !isset($pickup_coordinate['long'])) {
+			$pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
+		}
 
 		$deliveries = array(
 			array(
@@ -148,49 +225,48 @@ class WC_Kwik_Delivery_Shipping_Method extends WC_Shipping_Method
 			)
 		);
 
+		$pickups = array(
+			array(
+				"address" => $pickup_address,
+				"latitude" => $pickup_coordinate['lat'],
+				"longitude" => $pickup_coordinate['long']
+			)
+		);
+
 		$params = array(
-			'has_pickup' => 1,
-			'has_delivery' => 1,
-			'payment_method' => 32,
-			'pickups' => $pickups,
-			'deliveries' => $deliveries
+			'api_key' => $this->get_option('token'),
+			'pickup_latitude' => $pickups[0]['latitude'],
+			'pickup_longitude' => $pickups[0]['longitude'],
+			'delivery_latitude' => $deliveries[0]['latitude'],
+			'delivery_longitude' => $deliveries[0]['longitude'],
 		);
 
 		$res = $api->calculate_pricing($params);
-		
-		$cost = $res['data']['per_task_cost'];
 
-		$this->add_rate(array(
-			'id'    => $this->id . $this->instance_id,
-			'label' => $this->title,
-			'cost'  => $cost,
-		));
-	}
+		if (!$res['fare']) {
+			wc_add_notice(__($res['message']), 'error');
+			return;
+		} else {
+			$data = $res;
+			$handling_fee = $this->get_option('shipping_handling_fee');
 
-	/**
-	 * Format estimated delivery dates according to site date format
-	 *
-	 * @since 1.0
-	 * @param string $min_time minimum time in transit for delivery (e.g. '2 days')
-	 * @param string $max_time maximum time in transit for delivery (e.g. '4 days')
-	 * @return string formatted datetime in "Estimated delivery on {date}" or "Estimated delivery between {date} and {date}"
-	 */
-	private function format_delivery_date($min_time, $max_time)
-	{
-		// shipping time estimates are business days
-		$min_time = strtotime(str_replace('days', 'weekdays', $min_time));
-		$max_time = strtotime(str_replace('days', 'weekdays', $max_time));
+			if ($handling_fee < 0) {
+				$handling_fee = 0;
+			}
 
-		// add a day when the delivery estimate is short so the customer has a reasonable expectation
-		if ($min_time == $max_time) {
-			$max_time += DAY_IN_SECONDS;
+			$cost = wc_format_decimal($data['fare']) + wc_format_decimal($handling_fee);
+			
+			$this->add_rate(array(
+				'id'    	=> $this->id . $this->instance_id,
+				'label' 	=> $this->title,
+				'cost'  	=> $cost,
+				// 'meta_data' => array(
+					// 'per_task_cost'		   => $data['per_task_cost'],
+					// 'insurance_amount'     => $data['total_no_of_tasks'],
+					// 'total_no_of_tasks'    => $data['total_no_of_tasks'],
+					// 'total_service_charge' => $data['total_service_charge']
+				// )
+			));
 		}
-
-		// pretty format
-		$from_date = date_i18n(wc_date_format(), $min_time);
-		$to_date   = date_i18n(wc_date_format(), $max_time);
-
-		/* translators: Placeholders: %1$s - from date, %2$s - to date */
-		return sprintf(__('(Estimated delivery between %1$s and %2$s)', 'woocommerce-shipwire'), $from_date, $to_date);
 	}
 }

@@ -1,49 +1,45 @@
 <?php
 
 /**
- * Plugin Name: WooCommerce Kwik Delivery 
- * Plugin URI: http://kwik.delivery/
- * Description: A plugin to handle order shipping via kwik delivery
+ * Plugin Name: Gokada Delivery for WooCommerce
+ * Plugin URI: https://api.gokada.ng
+ * Description: A plugin to handle order shipping via gokada delivery
  * Version: 1.0.0
- * Author: Kwik Delivery
- * Author URI: http://kwik.delivery/
- * Developer: Wisdom Ebong
- * Developer URI: http://wisdomebong.com
- * Requires at least: 4.4
- * Tested up to: 5.2
+ * Developer: Bolaji .A
  * 
- * License: GNU General Public License v3.0
- * License URI: http://www.gnu.org/licenses/gpl-3.0.html
- * Copyright: © 2020 Kwik Delivery
  */
 
 if (!defined('WPINC')) {
     die('security by preventing any direct access to your plugin file');
 }
 
+define('WC_GOKADA_DELIVERY_MAIN_FILE', __FILE__);
+
 /**
- * WooCommerce Kwik Delivery Loader.
+ * WCommerce Gokada Delivery Loader.
  *
  */
-class WC_Kwik_Delivery_Loader
+class WC_Gokada_Delivery_Loader
 {
-
     /** minimum PHP version required by this plugin */
     const MINIMUM_PHP_VERSION = '5.4.0';
 
     /** minimum WordPress version required by this plugin */
-    const MINIMUM_WP_VERSION = '4.4';
+    const MINIMUM_WP_VERSION = '5.0';
 
     /** minimum WooCommerce version required by this plugin */
     const MINIMUM_WC_VERSION = '4.0';
 
     /** the plugin name, for displaying notices */
-    const PLUGIN_NAME = 'WooCommerce KwikDelivery';
+    const PLUGIN_NAME = 'Gokada Delivery for WooCommerce';
 
-    /** @var \WC_KwikDelivery_Loader single instance of this class */
+    /** the plugin slug, for action links */
+    const PLUGIN_SLUG = 'gokada-delivery-for-woocommerce';
+
+    /** @var \WC_GokadaDelivery_Loader single instance of this class */
     private static $instance;
 
-    private static $active_plugins;
+    private $active_plugins;
 
     /** @var array the admin notices to add */
     private $notices = array();
@@ -59,6 +55,7 @@ class WC_Kwik_Delivery_Loader
         if (is_multisite())
             $this->active_plugins = array_merge($this->active_plugins, get_site_option('active_sitewide_plugins', array()));
 
+        //check if there are active plugins
         if (!$this->wc_active_check()) {
             return;
         }
@@ -70,9 +67,11 @@ class WC_Kwik_Delivery_Loader
 
         add_action('admin_notices', array($this, 'admin_notices'), 15);
 
-        // if the environment check fails, initialize the plugin
+        // if the environment check passes, initialize the plugin
         if ($this->is_environment_compatible()) {
             add_action('plugins_loaded', array($this, 'init_plugin'));
+
+            add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'));
         }
     }
 
@@ -87,9 +86,15 @@ class WC_Kwik_Delivery_Loader
         }
 
         // load the main plugin class
-        require_once(plugin_dir_path(__FILE__) . 'class-wc-kwik-delivery.php');
+        require_once(plugin_dir_path(__FILE__) . 'class-wc-gokada-delivery.php');
 
-        wc_kwik_delivery();
+        wc_gokada_delivery();
+    }
+
+    public function plugin_action_links($links)
+    {
+        $links[] = '<a href="' . admin_url('admin.php?page=wc-settings&tab=shipping&section=gokada_delivery') . '">' . __('Settings') . '</a>';
+        return $links;
     }
 
     public function wc_active_check()
@@ -219,7 +224,7 @@ class WC_Kwik_Delivery_Loader
     /**
      * Displays any admin notices set.
      *
-     * @see \WC_KwikDelivery_Loader_Loader::add_admin_notice()
+     * @see \WC_GokadaDelivery_Loader_Loader::add_admin_notice()
      *
      */
     public function admin_notices()
@@ -281,7 +286,7 @@ class WC_Kwik_Delivery_Loader
      * Ensures only one instance can be loaded.
      *
      *
-     * @return \WC_Kwik_Delivery_Loader
+     * @return \WC_Gokada_Delivery_Loader
      */
     public static function instance()
     {
@@ -294,4 +299,4 @@ class WC_Kwik_Delivery_Loader
 }
 
 // fire it up!
-WC_Kwik_Delivery_Loader::instance();
+WC_Gokada_Delivery_Loader::instance();
