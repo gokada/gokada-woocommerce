@@ -194,8 +194,18 @@ class WC_Gokada_Delivery
             if ($pickup_delay < 0) {
                 $pickup_delay = 0;
             }
-            if ($pickup_delay >= 1) {
+            if ($pickup_delay >= 1 && $this->settings['shipping_is_scheduled_on'] == 'order_submit') {
                 $pickup_datetime = date('Y-m-d H:i:s', date(strtotime("+" . $pickup_delay . " hour", strtotime($pickup_date))));
+            }
+
+            else if ($this->settings['shipping_is_scheduled_on'] == 'scheduled_submit' && $this->settings['pickup_schedule_time']) {
+                $scheduled_time = $this->settings['pickup_schedule_time'];
+                $present_time = date('H:i');
+                if ($present_time < $scheduled_time) {
+                    $pickup_datetime = date('Y-m-d '.$scheduled_time);
+                } else if ($present_time > $scheduled_time) {
+                    $pickup_datetime = date('Y-m-d '.$scheduled_time, strtotime('+24 hours'));
+                }
             }
 
             // $delivery_date = date('Y-m-d H:i:s', date(strtotime('+ 4 hour', strtotime($pickup_date))));
