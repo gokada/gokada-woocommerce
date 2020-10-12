@@ -10,7 +10,7 @@ WIP
  
 WIP
 
-== Capabilities of the Kwik Delivery Integration ==
+== Capabilities of the Gokada Delivery Integration ==
 
 WIP
 
