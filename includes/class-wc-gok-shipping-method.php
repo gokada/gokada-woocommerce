@@ -97,7 +97,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'description'  =>	__('Select when the shipment will be created.'),
 				'default'      =>	__('order_submit'),
 				'desc_tip'          => false,
-				'options'      =>	array('order_submit' => 'Order submit with complete payment(Auto Delivery)', 'scheduled_submit' => 'Schedule a time interval to submit all pending orders')
+				'options'      =>	array('order_submit' => 'Order submit with complete payment(Auto Delivery)', 'scheduled_submit' => 'Schedule a time interval to submit all pending orders', 'shipment_submit' => 'Shipment submit from admin dashboard')
 			),
 			'shipping_handling_fee' => array(
 				'title'       => 	__('Additional handling fee applied'),
@@ -110,7 +110,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'type'         =>	'select',
 				'description'  =>	__('Select payment method.'),
 				'default'      =>	__('1'),
-				'options'      =>	array('1' => 'Wallet payment', '2' => 'Cash payment on pickup')
+				'options'      =>	array('1' => 'Wallet payment')
 			),
 			'pickup_delay_same' => array(
 				'title'       => 	__('Enter pickup delay time in hours(Auto delivery only)'),
@@ -132,7 +132,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'pickup_state' => array(
 				'title'       => 	__('Pickup State'),
 				'type'        => 	'text',
-				'description' => 	__('Must be the pickup location’s state or territory.'),
+				'description' => 	__('Service available in Lagos Only'),
 				'default'     => 	__($pickup_state)
 			),
 			'pickup_city' => array(
