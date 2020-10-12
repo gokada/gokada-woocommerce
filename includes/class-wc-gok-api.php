@@ -4,15 +4,9 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 class WC_Gokada_Delivery_API
 {
-    protected $login_credentials;
-
-    protected $request_url;
-
-    protected $domain_name = 'staging-client-panel.gokada.delivery';
-
     public function __construct($settings = array())
     {
-        $env      = isset($settings['mode']) ? $settings['mode'] : 'sandbox';
+        $env = isset($settings['mode']) ? $settings['mode'] : 'sandbox';
 
         $this->request_url = ('live' === $env) ? 'https://api.gokada.ng/' : 'http://gokada.local/';
     }

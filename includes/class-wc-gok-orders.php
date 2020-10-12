@@ -22,8 +22,6 @@ class WC_Gokada_Delivery_Orders
     public function __construct()
     {
         /** Order Hooks */
-        // add_action('init', array($this, 'register_awaiting_shipment_order_status'));
-        // add_action('init', array($this, 'register_shipped_order_status'));
 
         // add bulk action to update order status for multiple orders from shipwire
         add_action('admin_footer-edit.php', array($this, 'add_order_bulk_actions'));
@@ -32,74 +30,13 @@ class WC_Gokada_Delivery_Orders
         // add 'Gokada Delivery Information' order meta box
         add_action('add_meta_boxes', array($this, 'add_order_meta_box'));
 
-        // add custom actions on 'Orders' page
-        // add_action('woocommerce_admin_order_actions_end', array($this, 'add_order_actions'));
-
-        // add Gokada delivery status to order preview modal
-        // add_action('woocommerce_admin_order_preview_end', array($this, 'add_Gokada_delivery_status_to_preview_modal'));
-
         // process order meta box order actions
         add_action('woocommerce_order_action_wc_gokada_delivery_update_status', array($this, 'process_order_meta_box_actions'));
 
         // add 'Update Gokada Delivery Status' order meta box order actions
         add_filter('woocommerce_order_actions', array($this, 'add_order_meta_box_actions'));
 
-        // add_filter('wc_order_statuses', array($this, 'add_awaiting_shipment_to_order_statuses'));
-
-        // add_filter('wc_order_statuses', array($this, 'add_shipped_to_order_statuses'));
     }
-
-    // /* Register new status */
-    // public function register_awaiting_shipment_order_status()
-    // {
-    //     register_post_status('wc-awaiting-shipment', array(
-    //         'label'                     => _('Awaiting shipment'),
-    //         'public'                    => true,
-    //         'exclude_from_search'       => false,
-    //         'show_in_admin_all_list'    => true,
-    //         'show_in_admin_status_list' => true,
-    //         'label_count'               => _n_noop('Awaiting shipment (%s)', 'Awaiting shipment (%s)')
-    //     ));
-    // }
-
-    // /* Register new status*/
-    // function register_shipped_order_status()
-    // {
-    //     register_post_status('wc-shipped', array(
-    //         'label'                     => _x('Shipped', 'wdm'),
-    //         'public'                    => true,
-    //         'exclude_from_search'       => false,
-    //         'show_in_admin_all_list'    => true,
-    //         'show_in_admin_status_list' => true,
-    //         'label_count'               => _n_noop('Shipped <span class="count">(%s)</span>', 'Shipped <span class="count">(%s)</span>')
-    //     ));
-    // }
-
-    // public function add_awaiting_shipment_to_order_statuses($order_statuses)
-    // {
-    //     $new_order_statuses = array();
-    //     // add new order status after processing
-    //     foreach ($order_statuses as $key => $status) {
-    //         $new_order_statuses[$key] = $status;
-    //         if ('wc-processing' === $key) {
-    //             $new_order_statuses['wc-awaiting-shipment'] = __('Awaiting shipment');
-    //         }
-    //     }
-    //     return $new_order_statuses;
-    // }
-
-    // public function add_shipped_to_order_statuses($order_statuses)
-    // {
-    //     $new_order_statuses = array();
-    //     // add new order status after completed
-    //     foreach ($order_statuses as $key => $status) {
-    //         $new_order_statuses[$key] = $status;
-    //         if ('wc-completed' === $key) {
-    //             $new_order_statuses['wc-shipped'] = __('Shipped');
-    //         }
-    //     }
-    //     return $new_order_statuses;
-    // }
 
     /**
      * Add "Update Gokada Order Status" custom bulk action to the 'Orders' page bulk action drop-down

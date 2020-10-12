@@ -81,16 +81,16 @@ class WC_Gokada_Delivery
     {
         $plugin_path = $this->get_plugin_path();
 
-        require_once $plugin_path . 'includes/class-wc-kd-api.php';
+        require_once $plugin_path . 'includes/class-wc-gok-api.php';
 
-        require_once $plugin_path . 'includes/class-wc-kd-shipping-method.php';
+        require_once $plugin_path . 'includes/class-wc-gok-shipping-method.php';
     }
 
     public function admin_includes()
     {
         $plugin_path = $this->get_plugin_path();
 
-        require_once $plugin_path . 'includes/class-wc-kd-orders.php';
+        require_once $plugin_path . 'includes/class-wc-gok-orders.php';
     }
 
     /**
@@ -149,7 +149,7 @@ class WC_Gokada_Delivery
             $img = '<img class="Gokada-delivery-logo"' .
                 ' alt="' . $logo_title . '"' .
                 ' title="' . $logo_title . '"' .
-                ' style="width:25px; height:25px; display:inline;"' .
+                ' style="width:20px; height:20px; display:inline;"' .
                 ' src="' . $icon_url . '"' .
                 '>';
             $label = $img . ' ' . $label;

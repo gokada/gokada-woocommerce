@@ -217,28 +217,12 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			$pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
 		}
 
-		$deliveries = array(
-			array(
-				"address" => $delivery_address,
-				"latitude" => $delivery_coordinate['lat'],
-				"longitude" => $delivery_coordinate['long']
-			)
-		);
-
-		$pickups = array(
-			array(
-				"address" => $pickup_address,
-				"latitude" => $pickup_coordinate['lat'],
-				"longitude" => $pickup_coordinate['long']
-			)
-		);
-
 		$params = array(
 			'api_key' => $this->get_option('token'),
-			'pickup_latitude' => $pickups[0]['latitude'],
-			'pickup_longitude' => $pickups[0]['longitude'],
-			'delivery_latitude' => $deliveries[0]['latitude'],
-			'delivery_longitude' => $deliveries[0]['longitude'],
+			'pickup_latitude' => $pickup_coordinate['lat'],
+			'pickup_longitude' => $pickup_coordinate['long'],
+			'delivery_latitude' => $delivery_coordinate['lat'],
+			'delivery_longitude' => $delivery_coordinate['long'],
 		);
 
 		$res = $api->calculate_pricing($params);
@@ -260,12 +244,6 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'id'    	=> $this->id . $this->instance_id,
 				'label' 	=> $this->title,
 				'cost'  	=> $cost,
-				// 'meta_data' => array(
-					// 'per_task_cost'		   => $data['per_task_cost'],
-					// 'insurance_amount'     => $data['total_no_of_tasks'],
-					// 'total_no_of_tasks'    => $data['total_no_of_tasks'],
-					// 'total_service_charge' => $data['total_service_charge']
-				// )
 			));
 		}
 	}
