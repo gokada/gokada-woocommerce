@@ -219,7 +219,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 		}
 
 		$params = array(
-			'api_key' => $this->get_option('token'),
+			'api_key' => $this->get_option('api_key'),
 			'pickup_latitude' => $pickup_coordinate['lat'],
 			'pickup_longitude' => $pickup_coordinate['long'],
 			'delivery_latitude' => $delivery_coordinate['lat'],

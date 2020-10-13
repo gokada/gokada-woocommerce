@@ -353,7 +353,7 @@ class WC_Gokada_Delivery
         $pickup_tracking_url = $order->get_meta('gokada_delivery_pickup_tracking_url');
         $delivery_tracking_url = $order->get_meta('gokada_delivery_delivery_tracking_url');
 
-        if (isset($pickup_tracking_url)) {
+        if ($pickup_tracking_url) {
 ?>
             <p class="wc-gokada-delivery-track-pickup">
                 <a href="<?php echo esc_url($pickup_tracking_url); ?>" class="button" target="_blank">Track Gokada Pickup</a>
@@ -362,13 +362,18 @@ class WC_Gokada_Delivery
         <?php
         }
 
-        if (isset($delivery_tracking_url)) {
+        if ($delivery_tracking_url) {
         ?>
             <p class="wc-gokada-delivery-track-delivery">
                 <a href="<?php echo esc_url($delivery_tracking_url); ?>" class="button" target="_blank">Track Gokada Delivery</a>
             </p>
 <?php
         }
+        if (!$pickup_tracking_url) {
+            ?>
+                 <p>Please Check Back for Gokada Delivery Tracking Information</p>
+    <?php
+            }
     }
 
     public function remove_address_2_checkout_fields($fields)
