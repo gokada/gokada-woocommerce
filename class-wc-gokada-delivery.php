@@ -168,7 +168,7 @@ class WC_Gokada_Delivery
 
             $receiver_name      = $order->get_shipping_first_name() . " " . $order->get_shipping_last_name();
             $receiver_email     = $order->get_billing_email();
-            $receiver_phone     = $order->get_billing_phone();
+            $receiver_phone     = $this->normalize_number($order->get_billing_phone());
             $delivery_base_address  = $order->get_shipping_address_1();
             $delivery_city      = $order->get_shipping_city();
             $delivery_state_code    = $order->get_shipping_state();
@@ -177,7 +177,7 @@ class WC_Gokada_Delivery
             $delivery_country = WC()->countries->get_countries()[$delivery_country_code];
 
             $sender_name         = $this->settings['sender_name'];
-            $sender_phone        = $this->settings['sender_phone_number'];
+            $sender_phone        = $this->normalize_number($this->settings['sender_phone_number']);
             $sender_email        = $this->settings['sender_email'];
             $pickup_base_address = $this->settings['pickup_base_address'];
             $pickup_city         = $this->settings['pickup_state'];
@@ -448,6 +448,47 @@ class WC_Gokada_Delivery
         }
 
         return self::$instance;
+    }
+
+     /**
+     * Normalizes phone number to required format by endpoint.
+     *
+     * @internal
+     *
+     * @since 2.0.0
+     *
+     * @param int|\number sender/receiver phone number
+     */
+    public static function normalize_number($number) {
+        $phone_number_build = "";
+        $phone_number_raw = str_replace([' ','-','(',')'], [''], $number);
+        
+        if(substr($phone_number_raw, 0, 5) == '+2340') {
+            $phone_number_raw = substr($phone_number_raw, 5);
+        } else if(substr($phone_number_raw, 0, 4) == '2340') {
+            $phone_number_raw = substr($phone_number_raw, 4);
+        } else if($phone_number_raw[0] == '0') {
+            $phone_number_raw = substr($phone_number_raw, 1);
+        }
+
+        // check : +234
+        $phone_cc_check = substr($phone_number_raw, 0, 4);
+        if($phone_cc_check == '+234') {
+            $phone_number_build = $phone_number_raw;
+        }
+
+        // check : 234
+        $phone_cc_check = substr($phone_number_raw, 0, 3);
+        if($phone_cc_check == '234') {
+            $phone_number_build = '+' . $phone_number_raw;
+        }
+
+        if($phone_number_build == "") {
+            $phone_number_raw = str_replace(array('+1','+'), '', $phone_number_raw);
+            $phone_number_build = "+234" . $phone_number_raw;
+        }
+        
+        return $phone_number_build;
     }
 }
 
