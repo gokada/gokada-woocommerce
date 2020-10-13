@@ -14,6 +14,10 @@ class WC_Gokada_Delivery_Orders
     /** @var \WC_Gokada_Delivery_Orders single instance of this class */
     private static $instance;
 
+    /** @var array settings value for this plugin */
+    public $settings;
+
+
     /**
      * Add various admin hooks/filters
      *
@@ -22,7 +26,7 @@ class WC_Gokada_Delivery_Orders
     public function __construct()
     {
         /** Order Hooks */
-
+        $this->settings = maybe_unserialize(get_option('woocommerce_Gokada_delivery_settings'));
         // add bulk action to update order status for multiple orders from shipwire
         add_action('admin_footer-edit.php', array($this, 'add_order_bulk_actions'));
         add_action('load-edit.php', array($this, 'process_order_bulk_actions'));
@@ -30,8 +34,11 @@ class WC_Gokada_Delivery_Orders
         // add 'Gokada Delivery Information' order meta box
         add_action('add_meta_boxes', array($this, 'add_order_meta_box'));
 
-        // process order meta box order actions
-        add_action('woocommerce_order_action_wc_gokada_delivery_update_status', array($this, 'process_order_meta_box_actions'));
+        // process order update action
+        add_action('woocommerce_order_action_wc_gokada_delivery_update_status', array($this, 'process_order_update_action'));
+
+        // process order create action
+        add_action('woocommerce_order_action_wc_gokada_delivery_create', array($this, 'process_order_create_action'));
 
         // add 'Update Gokada Delivery Status' order meta box order actions
         add_filter('woocommerce_order_actions', array($this, 'add_order_meta_box_actions'));
@@ -113,8 +120,17 @@ class WC_Gokada_Delivery_Orders
      */
     public function add_order_meta_box_actions($actions)
     {
+        global $theorder;
+
         // add update shipping status action
-        $actions['wc_gokada_delivery_update_status'] = __('Update Order Status (via Gokada delivery)');
+        if ($theorder->get_meta('gokada_delivery_order_id')) {
+            $actions['wc_gokada_delivery_update_status'] = __('Update Order Status (via Gokada delivery)');
+        }
+        
+        //create gokada order
+        if ($this->settings['shipping_is_scheduled_on'] == 'shipment_submit' && !$theorder->get_meta('gokada_delivery_order_id')) {
+            $actions['wc_gokada_delivery_create'] = __('Create Gokada Order');
+        }
 
         return $actions;
     }
@@ -126,9 +142,20 @@ class WC_Gokada_Delivery_Orders
      * @since 1.0
      * @param \WC_Order $order object
      */
-    public function process_order_meta_box_actions($order)
+    public function process_order_update_action($order)
     {
         wc_gokada_delivery()->update_order_shipping_status($order);
+    }
+
+    /**
+     * Handle actions from the 'Create Order' order action select box
+     *
+     * @since 1.0
+     * @param \WC_Order $order object
+     */
+    public function process_order_create_action($order)
+    {
+        wc_gokada_delivery()->create_order_shipping_task($order->get_id());
     }
 
 
