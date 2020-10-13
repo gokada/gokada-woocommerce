@@ -83,12 +83,13 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'default'     => 	'sandbox',
 				'options'     => 	array('sandbox' => 'Sandbox', 'live' => 'Live'),
 			),
-			'token' => array(
-				'title'       => 	__('Developer Token'),
+			'api_key' => array(
+				'title'       => 	__('API Key'),
 				'type'        => 	'password',
-				'description'       => __( 'Here’s how to get Gokada Developer API token:<br/>
-											1. Login into your Gokada Business Account<br/>
-											2. Copy the Key from your profile and paste it here.' ),
+				// 'description'       => __( 'Here’s how to get Gokada Developer API token:<br/>
+				// 							1. Login into your Gokada Business Account<br/>
+                // 							2. Copy the Key from your profile and paste it here.' ),
+                'description'   => __( '<a href="https://business.gokada.ng/" target="_blank">Get your Gokada Developer API token</a>'),
 				'default'     => 	__('')
 			),
 			'shipping_is_scheduled_on' => array(

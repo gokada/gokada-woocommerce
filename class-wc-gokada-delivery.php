@@ -225,7 +225,7 @@ class WC_Gokada_Delivery
             }
 
             $params = array(
-                'api_key'                 => $this->settings['token'],
+                'api_key'                 => $this->settings['api_key'],
                 'pickup_address'          => $pickup_address,
                 'pickup_latitude'         => $pickup_coordinate['lat'],
                 'pickup_longitude'        => $pickup_coordinate['long'],
@@ -248,7 +248,7 @@ class WC_Gokada_Delivery
             if ($res['order_id']) {
                 $status = $api->get_order_details(
                     array(
-                        'api_key'    => $this->settings['token'],
+                        'api_key'    => $this->settings['api_key'],
                         'order_id'   =>  $res['order_id']
                     )
                 );
@@ -283,7 +283,7 @@ class WC_Gokada_Delivery
 
             try {
                 $res = $this->get_api()->cancel_task(array(
-                    'api_key'    => $this->settings['token'],
+                    'api_key'    => $this->settings['api_key'],
                     'order_id'   =>  $gokada_order_id
                 ));
                 error_log(print_r($res));
@@ -318,7 +318,7 @@ class WC_Gokada_Delivery
         $gokada_order_id = $order->get_meta('gokada_delivery_order_id');
         if ($gokada_order_id) {
             $res = $this->get_api()->get_order_details( array(
-                'api_key'    => $this->settings['token'],
+                'api_key'    => $this->settings['api_key'],
                 'order_id'   =>  $gokada_order_id
             ));
 
