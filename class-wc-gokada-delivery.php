@@ -364,6 +364,9 @@ class WC_Gokada_Delivery
      */
     public function add_view_order_tracking($order)
     {
+        if ($this->settings['enabled'] == 'no') {
+            return;
+        }
         $order = wc_get_order($order);
 
         $pickup_tracking_url = $order->get_meta('gokada_delivery_pickup_tracking_url');

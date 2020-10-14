@@ -177,7 +177,8 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 	 */
 	public function calculate_shipping($package = array())
 	{
-		if ($this->enabled == 'no') {
+		// return;
+		if ($this->get_option('enabled') == 'no') {
 			return;
 		}
 
