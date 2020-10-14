@@ -85,7 +85,6 @@ class WC_Gokada_Delivery_API
                 if (isset($json['error']))
                     throw new Exception("{$json['message']}");
                 else {
-                    print_r($json);
                     return $json;
                 }
                     

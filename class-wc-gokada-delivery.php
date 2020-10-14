@@ -132,7 +132,23 @@ class WC_Gokada_Delivery
         add_filter('woocommerce_shipping_calculator_enable_city', '__return_true');
 
         add_filter('woocommerce_shipping_calculator_enable_postcode', '__return_false');
-    }
+  
+        function update_woocommerce_delivery_fee_on_change(){
+            if ( function_exists('is_checkout') && is_checkout() ) {
+                ?>
+                <script>
+                    window.addEventListener('load', function(){
+                        var el = document.getElementById("billing_address_1_field");
+                        el.className += ' update_totals_on_change';
+                        el = document.getElementById("billing_address_1_field");
+                        el.className += ' update_totals_on_change'; 
+                    });
+                </script>
+                <?php 
+            }
+            }
+            add_action('wp_print_footer_scripts', 'update_woocommerce_delivery_fee_on_change');
+        }
 
     /**
      * shipping_icon.
@@ -438,7 +454,7 @@ class WC_Gokada_Delivery
     }
 
     /**
-     * Returns the main gokada Delivery Instance.
+     * Returns the main Gokada Delivery Instance.
      *
      * Ensures only one instance is/can be loaded.
      *
@@ -499,7 +515,7 @@ class WC_Gokada_Delivery
 
 
 /**
- * Returns the One True Instance of WooCommerce GokadaDelivery.
+ * Returns the Gokada Delivery instance.
  *
  * @since 1.0.0
  *
