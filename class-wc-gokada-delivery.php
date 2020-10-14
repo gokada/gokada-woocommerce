@@ -107,8 +107,8 @@ class WC_Gokada_Delivery
         $shipping_is_scheduled_on = $this->settings['shipping_is_scheduled_on'];
         if ($shipping_is_scheduled_on == 'order_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
             // create order when \WC_Order::payment_complete() is called
-            // add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
-            add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
+            add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
+            // add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
         }
 
         add_action('woocommerce_shipping_init', array($this, 'load_shipping_method'));
@@ -499,6 +499,10 @@ class WC_Gokada_Delivery
      * @param int|\number sender/receiver phone number
      */
     public static function normalize_number($number) {
+        if (empty($number)) {
+            return;
+        }
+
         $phone_number_build = "";
         $phone_number_raw = str_replace([' ','-','(',')'], [''], $number);
         
