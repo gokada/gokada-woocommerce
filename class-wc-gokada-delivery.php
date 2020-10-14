@@ -107,8 +107,8 @@ class WC_Gokada_Delivery
         $shipping_is_scheduled_on = $this->settings['shipping_is_scheduled_on'];
         if ($shipping_is_scheduled_on == 'order_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
             // create order when \WC_Order::payment_complete() is called
-            add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
-            // add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
+            // add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
+            add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
         }
 
         add_action('woocommerce_shipping_init', array($this, 'load_shipping_method'));
@@ -176,6 +176,10 @@ class WC_Gokada_Delivery
 
     public function create_order_shipping_task($order_id)
     {
+        if ($this->settings['mode'] == 'sandbox' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
+			return;
+        }
         
         $order = wc_get_order($order_id);
         // $order_status    = $order->get_status();
@@ -293,6 +297,11 @@ class WC_Gokada_Delivery
      */
     public function cancel_order_shipping_task($order_id)
     {
+        if ($this->settings['mode'] == 'sandbox' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
+			return;
+        }
+
         $order = wc_get_order($order_id);
         $gokada_order_id = $order->get_meta('gokada_delivery_order_id');
 
@@ -328,7 +337,12 @@ class WC_Gokada_Delivery
      * @param int $order_id
      */
     public function update_order_shipping_status($order_id)
-    {   
+    {
+        if ($this->settings['mode'] == 'sandbox' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
+			return;
+        }
+        
         error_log('update stats');
         $order = wc_get_order($order_id);
 
@@ -485,8 +499,6 @@ class WC_Gokada_Delivery
      * @param int|\number sender/receiver phone number
      */
     public static function normalize_number($number) {
-        if (empty($number))
-        return;
         $phone_number_build = "";
         $phone_number_raw = str_replace([' ','-','(',')'], [''], $number);
         
