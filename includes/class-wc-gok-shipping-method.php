@@ -157,7 +157,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'sender_phone_number' => array(
 				'title'       => 	__('Sender Phone Number'),
 				'type'        => 	'text',
-				'description' => 	__('Must be a valid phone number starting with +234'),
+				'description' => 	__('Must be a valid phone number'),
 				'default'     => 	__('')
 			),
 			'sender_email' => array(
@@ -170,7 +170,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 	}
 
 	/**
-	 * Calculate shipping by sending destination/items to Shipwire and parsing returned rates
+	 * Calculate shipping by sending destination/items to Gokada and parsing returned rates
 	 *
 	 * @since 1.0
 	 * @param array $package
