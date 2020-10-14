@@ -182,6 +182,11 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			return;
 		}
 
+		if ($this->get_option('mode') == 'sandbox' && strpos($this->get_option('api_key'), 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
+			return;
+		}
+
 		// country required for all shipments
 		if (!$package['destination']['country'] && 'NG' !== $package['destination']['country']) {
 			return;
@@ -219,12 +224,15 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			$pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
 		}
 
+		$test_mode = $this->get_option('mode') == 'sandbox' ? true : false;
+
 		$params = array(
 			'api_key' => $this->get_option('api_key'),
 			'pickup_latitude' => $pickup_coordinate['lat'],
 			'pickup_longitude' => $pickup_coordinate['long'],
 			'delivery_latitude' => $delivery_coordinate['lat'],
 			'delivery_longitude' => $delivery_coordinate['long'],
+
 		);
 
 		$res = $api->calculate_pricing($params);
