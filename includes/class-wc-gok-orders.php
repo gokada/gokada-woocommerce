@@ -29,7 +29,7 @@ class WC_Gokada_Delivery_Orders
         $this->settings = maybe_unserialize(get_option('woocommerce_Gokada_delivery_settings'));
 
         if ($this->settings['enabled'] == 'yes') {
-            // add bulk action to update order status for multiple orders from shipwire
+            // add bulk action to update order status for multiple orders from Gokada
             add_action('admin_footer-edit.php', array($this, 'add_order_bulk_actions'));
             add_action('load-edit.php', array($this, 'process_order_bulk_actions'));
 
@@ -70,7 +70,7 @@ class WC_Gokada_Delivery_Orders
     }
 
     /**
-     * Processes the "Export to Shipwire" & "Update Tracking" custom bulk actions on the 'Orders' page bulk action drop-down
+     * Processes the "Export to Gokada" & "Update Tracking" custom bulk actions on the 'Orders' page bulk action drop-down
      *
      * @since  1.0
      */
