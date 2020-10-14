@@ -182,7 +182,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			return;
 		}
 
-		if ($this->get_option('mode') == 'sandbox' && strpos($this->get_option('api_key'), 'test') != 0) {
+		if ($this->get_option('mode') == 'sandbox' && strpos($this->get_option('api_key'), 'test') == false) {
 			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
 			return;
 		}
