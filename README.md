@@ -30,16 +30,16 @@ Gokada currently serves only **Lagos, Nigeria**.
 ### Manual Installation
 
 1.  Download the plugin zip file
-2.  Login to your WordPress Admin. Click on "Plugins > Add New" from the left hand menu.
+2.  Login to your WordPress Admin. Click on "Plugins > Add New" from the left-hand menu.
 3.  Click on the "Upload" option, then click "Choose File" to select the zip file from your computer. Once selected, press "OK" and press the "Install Now" button.
 4.  Activate the plugin.
 5.  Open the settings page for WooCommerce and click the "Shipping" tab.
-6.  Add a new Shipping Zone, with the `Zone Region` set as __Lagos__. Click on `Add Shipping Method` and select __Gokada Delviery__ from the list of options.
+6.  Add a new Shipping Zone, with the `Zone Region` set as __Lagos__. Click on `Add Shipping Method` and select __Gokada Delivery__ from the list of options.
 7.  Configure your **Gokada Delivery** settings. See below for details.
 
 ### Configure the plugin
 
-To configure the plugin, go to **WooCommerce > Settings** from the left hand menu, then click **Shipping** from the top tab. You will see **Gokada Delivery** as part of the available Shipping Options. Click on it to configure the plugin.
+To configure the plugin, go to **WooCommerce > Settings** from the left-hand menu, then click **Shipping** from the top tab. You will see **Gokada Delivery** as part of the available Shipping Options. Click on it to configure the plugin.
 
 - **Enable/Disable** - check the box to enable the Gokada Delivery shipping method.
 - **Mode** - Select whether to enable test or live mode.
