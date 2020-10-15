@@ -86,19 +86,20 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'api_key' => array(
 				'title'       => 	__('API Key'),
 				'type'        => 	'password',
-				// 'description'       => __( 'Here’s how to get Gokada Developer API token:<br/>
-				// 							1. Login into your Gokada Business Account<br/>
-                // 							2. Copy the Key from your profile and paste it here.' ),
-                'description'   => __( '<a href="https://business.gokada.ng/" target="_blank">Get your Gokada Developer API token</a>'),
+				'description'   => __( '<a href="https://business.gokada.ng/" target="_blank">Get your Gokada Developer API token</a>'),
 				'default'     => 	__('')
 			),
 			'shipping_is_scheduled_on' => array(
 				'title'        =>	__('Schedule shipping task'),
 				'type'         =>	'select',
-				'description'  =>	__('Select when the shipment will be created.'),
+				'description'  =>	__('Select when the delivery will be created.'),
 				'default'      =>	__('order_submit'),
 				'desc_tip'          => false,
-				'options'      =>	array('order_submit' => 'Order submit with complete payment(Auto Delivery)', 'scheduled_submit' => 'Schedule a time interval to submit all pending orders', 'shipment_submit' => 'Shipment submit from admin dashboard')
+				'options'      =>	array(
+                                        'order_submit' => 'Order submit with complete payment (Auto Delivery)',
+                                        'scheduled_submit' => 'Schedule a time interval to submit all pending orders',
+                                        'shipment_submit' => 'Shipment submit from admin dashboard'
+                ),
 			),
 			'shipping_handling_fee' => array(
 				'title'       => 	__('Additional handling fee applied'),
@@ -107,20 +108,20 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'default'     => 	__('0')
 			),
 			'shipping_payment_method' => array(
-				'title'        =>	__('Payment method for shipment'),
+				'title'        =>	__('Payment method for delivery'),
 				'type'         =>	'select',
 				'description'  =>	__('Select payment method.'),
 				'default'      =>	__('1'),
 				'options'      =>	array('1' => 'Wallet payment')
 			),
 			'pickup_delay_same' => array(
-				'title'       => 	__('Enter pickup delay time in hours(Auto delivery only)'),
+				'title'       => 	__('Enter pickup delay time in hours (Auto Delivery only)'),
 				'type'        => 	'text',
-				'description' => 	__("If pickup time should be delayed by some hours. Defaults to 0"),
+				'description' => 	__("Number of hours to delay pickup time by. Defaults to 0"),
 				'default'     => 	__('0')
 			),
 			'pickup_schedule_time' => array(
-				'title'       => 	__('Enter Daily pickup schedule time in hours(Scheduled Delivery Only)'),
+				'title'       => 	__('Enter daily pickup time in hours (Scheduled Delivery only)'),
 				'type'        => 	'time',
 			),
 			'pickup_country' => array(
