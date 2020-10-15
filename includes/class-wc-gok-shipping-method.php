@@ -79,26 +79,27 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'title'       => 	__('Mode'),
 				'hidden'		  => 'true',
 				'type'        => 	'select',
-				'description' => 	__('Default is (Sandbox), choose (Live) when your ready to start processing orders via gokada delivery'),
-				'default'     => 	'sandbox',
-				'options'     => 	array('sandbox' => 'Sandbox', 'live' => 'Live'),
+				'description' => 	__('Default is (Test), choose (Live) when your ready to start processing orders via gokada delivery'),
+				'default'     => 	'test',
+				'options'     => 	array('test' => 'Test', 'live' => 'Live'),
 			),
 			'api_key' => array(
 				'title'       => 	__('API Key'),
 				'type'        => 	'password',
-				// 'description'       => __( 'Here’s how to get Gokada Developer API token:<br/>
-				// 							1. Login into your Gokada Business Account<br/>
-                // 							2. Copy the Key from your profile and paste it here.' ),
-                'description'   => __( '<a href="https://business.gokada.ng/" target="_blank">Get your Gokada Developer API token</a>'),
+				'description'   => __( '<a href="https://business.gokada.ng/" target="_blank">Get your Gokada Developer API token</a>'),
 				'default'     => 	__('')
 			),
 			'shipping_is_scheduled_on' => array(
 				'title'        =>	__('Schedule shipping task'),
 				'type'         =>	'select',
-				'description'  =>	__('Select when the shipment will be created.'),
+				'description'  =>	__('Select when the delivery will be created.'),
 				'default'      =>	__('order_submit'),
 				'desc_tip'          => false,
-				'options'      =>	array('order_submit' => 'Order submit with complete payment(Auto Delivery)', 'scheduled_submit' => 'Schedule a time interval to submit all pending orders', 'shipment_submit' => 'Shipment submit from admin dashboard')
+				'options'      =>	array(
+                                        'order_submit' => 'Order submit with complete payment (Auto Delivery)',
+                                        'scheduled_submit' => 'Schedule a time interval to submit all pending orders',
+                                        'shipment_submit' => 'Shipment submit from admin dashboard'
+                ),
 			),
 			'shipping_handling_fee' => array(
 				'title'       => 	__('Additional handling fee applied'),
@@ -107,20 +108,20 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'default'     => 	__('0')
 			),
 			'shipping_payment_method' => array(
-				'title'        =>	__('Payment method for shipment'),
+				'title'        =>	__('Payment method for delivery'),
 				'type'         =>	'select',
 				'description'  =>	__('Select payment method.'),
 				'default'      =>	__('1'),
 				'options'      =>	array('1' => 'Wallet payment')
 			),
 			'pickup_delay_same' => array(
-				'title'       => 	__('Enter pickup delay time in hours(Auto delivery only)'),
+				'title'       => 	__('Enter pickup delay time in hours (Auto Delivery only)'),
 				'type'        => 	'text',
-				'description' => 	__("If pickup time should be delayed by some hours. Defaults to 0"),
+				'description' => 	__("Number of hours to delay pickup time by. Defaults to 0"),
 				'default'     => 	__('0')
 			),
 			'pickup_schedule_time' => array(
-				'title'       => 	__('Enter Daily pickup schedule time in hours(Scheduled Delivery Only)'),
+				'title'       => 	__('Enter daily pickup time in hours (Scheduled Delivery only)'),
 				'type'        => 	'time',
 			),
 			'pickup_country' => array(
@@ -157,7 +158,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'sender_phone_number' => array(
 				'title'       => 	__('Sender Phone Number'),
 				'type'        => 	'text',
-				'description' => 	__('Must be a valid phone number starting with +234'),
+				'description' => 	__('Must be a valid phone number'),
 				'default'     => 	__('')
 			),
 			'sender_email' => array(
@@ -170,14 +171,20 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 	}
 
 	/**
-	 * Calculate shipping by sending destination/items to Shipwire and parsing returned rates
+	 * Calculate shipping by sending destination/items to Gokada and parsing returned rates
 	 *
 	 * @since 1.0
 	 * @param array $package
 	 */
 	public function calculate_shipping($package = array())
 	{
-		if ($this->enabled == 'no') {
+		// return;
+		if ($this->get_option('enabled') == 'no') {
+			return;
+		}
+
+		if ($this->get_option('mode') == 'test' && strpos($this->get_option('api_key'), 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
 		}
 
@@ -218,12 +225,15 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			$pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
 		}
 
+		$test_mode = $this->get_option('mode') == 'test' ? true : false;
+
 		$params = array(
 			'api_key' => $this->get_option('api_key'),
 			'pickup_latitude' => $pickup_coordinate['lat'],
 			'pickup_longitude' => $pickup_coordinate['long'],
 			'delivery_latitude' => $delivery_coordinate['lat'],
 			'delivery_longitude' => $delivery_coordinate['long'],
+
 		);
 
 		$res = $api->calculate_pricing($params);

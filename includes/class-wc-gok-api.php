@@ -6,7 +6,7 @@ class WC_Gokada_Delivery_API
 {
     public function __construct($settings = array())
     {
-        $env = isset($settings['mode']) ? $settings['mode'] : 'sandbox';
+        $env = isset($settings['mode']) ? $settings['mode'] : 'test';
 
         // $this->request_url = ('live' === $env) ? 'https://api.gokada.ng/' : 'http://gokada.local/';
         $this->request_url = 'https://api.gokada.ng/';
@@ -19,7 +19,7 @@ class WC_Gokada_Delivery_API
 
     public function create_task($params)
     {
-        error_log('creating');
+        // error_log('creating');
         return $this->send_request('api/developer/order_create', $params);
     }
 
@@ -44,7 +44,7 @@ class WC_Gokada_Delivery_API
                 $body = wp_remote_retrieve_body($json);
                 $json = json_decode($body, true);
             }
-            error_log(print_r($json));
+            // error_log(print_r($json));
             if (!is_wp_error($json)) {
                 $coord['lat']  = $json[0]['lat'];
                 $coord['long'] = $json[0]['lon'];
@@ -85,7 +85,6 @@ class WC_Gokada_Delivery_API
                 if (isset($json['error']))
                     throw new Exception("{$json['message']}");
                 else {
-                    print_r($json);
                     return $json;
                 }
                     

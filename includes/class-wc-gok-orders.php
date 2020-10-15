@@ -27,22 +27,24 @@ class WC_Gokada_Delivery_Orders
     {
         /** Order Hooks */
         $this->settings = maybe_unserialize(get_option('woocommerce_Gokada_delivery_settings'));
-        // add bulk action to update order status for multiple orders from shipwire
-        add_action('admin_footer-edit.php', array($this, 'add_order_bulk_actions'));
-        add_action('load-edit.php', array($this, 'process_order_bulk_actions'));
 
-        // add 'Gokada Delivery Information' order meta box
-        add_action('add_meta_boxes', array($this, 'add_order_meta_box'));
+        if ($this->settings['enabled'] == 'yes') {
+            // add bulk action to update order status for multiple orders from Gokada
+            add_action('admin_footer-edit.php', array($this, 'add_order_bulk_actions'));
+            add_action('load-edit.php', array($this, 'process_order_bulk_actions'));
 
-        // process order update action
-        add_action('woocommerce_order_action_wc_gokada_delivery_update_status', array($this, 'process_order_update_action'));
+            // add 'Gokada Delivery Information' order meta box
+            add_action('add_meta_boxes', array($this, 'add_order_meta_box'));
 
-        // process order create action
-        add_action('woocommerce_order_action_wc_gokada_delivery_create', array($this, 'process_order_create_action'));
+            // process order update action
+            add_action('woocommerce_order_action_wc_gokada_delivery_update_status', array($this, 'process_order_update_action'));
 
-        // add 'Update Gokada Delivery Status' order meta box order actions
-        add_filter('woocommerce_order_actions', array($this, 'add_order_meta_box_actions'));
+            // process order create action
+            add_action('woocommerce_order_action_wc_gokada_delivery_create', array($this, 'process_order_create_action'));
 
+            // add 'Update Gokada Delivery Status' order meta box order actions
+            add_filter('woocommerce_order_actions', array($this, 'add_order_meta_box_actions'));
+        }
     }
 
     /**
@@ -68,7 +70,7 @@ class WC_Gokada_Delivery_Orders
     }
 
     /**
-     * Processes the "Export to Shipwire" & "Update Tracking" custom bulk actions on the 'Orders' page bulk action drop-down
+     * Processes the "Export to Gokada" & "Update Tracking" custom bulk actions on the 'Orders' page bulk action drop-down
      *
      * @since  1.0
      */

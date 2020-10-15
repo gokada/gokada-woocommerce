@@ -103,12 +103,12 @@ class WC_Gokada_Delivery
         /**
          * Actions
          */
-        error_log($this->settings['shipping_is_scheduled_on']);
+        // error_log($this->settings['shipping_is_scheduled_on']);
         $shipping_is_scheduled_on = $this->settings['shipping_is_scheduled_on'];
         if ($shipping_is_scheduled_on == 'order_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
             // create order when \WC_Order::payment_complete() is called
-            // add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
-            add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
+            add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
+            // add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
         }
 
         add_action('woocommerce_shipping_init', array($this, 'load_shipping_method'));
@@ -132,7 +132,23 @@ class WC_Gokada_Delivery
         add_filter('woocommerce_shipping_calculator_enable_city', '__return_true');
 
         add_filter('woocommerce_shipping_calculator_enable_postcode', '__return_false');
-    }
+  
+        function update_woocommerce_delivery_fee_on_change(){
+            if ( function_exists('is_checkout') && is_checkout() ) {
+                ?>
+                <script>
+                    window.addEventListener('load', function(){
+                        var el = document.getElementById("billing_address_1_field");
+                        el.className += ' update_totals_on_change';
+                        el = document.getElementById("billing_address_1_field");
+                        el.className += ' update_totals_on_change'; 
+                    });
+                </script>
+                <?php 
+            }
+            }
+            add_action('wp_print_footer_scripts', 'update_woocommerce_delivery_fee_on_change');
+        }
 
     /**
      * shipping_icon.
@@ -160,6 +176,11 @@ class WC_Gokada_Delivery
 
     public function create_order_shipping_task($order_id)
     {
+        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
+			return;
+        }
+        
         $order = wc_get_order($order_id);
         // $order_status    = $order->get_status();
         $shipping_method = @array_shift($order->get_shipping_methods());
@@ -240,10 +261,10 @@ class WC_Gokada_Delivery
                 'delivery_email'          => $receiver_email,
                 'pickup_datetime'         => $pickup_datetime
             );
-            error_log(print_r($params, true));
+            // error_log(print_r($params, true));
 
             $res = $api->create_task($params);
-            error_log(print_r($res, true));
+            // error_log(print_r($res, true));
 
             if ($res['order_id']) {
                 $status = $api->get_order_details(
@@ -252,7 +273,7 @@ class WC_Gokada_Delivery
                         'order_id'   =>  $res['order_id']
                     )
                 );
-                error_log(print_r($status, true));
+                // error_log(print_r($status, true));
             }
 
             $order->add_order_note("Gokada Delivery: Successfully created order");
@@ -276,6 +297,11 @@ class WC_Gokada_Delivery
      */
     public function cancel_order_shipping_task($order_id)
     {
+        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
+			return;
+        }
+
         $order = wc_get_order($order_id);
         $gokada_order_id = $order->get_meta('gokada_delivery_order_id');
 
@@ -286,7 +312,7 @@ class WC_Gokada_Delivery
                     'api_key'    => $this->settings['api_key'],
                     'order_id'   =>  $gokada_order_id
                 ));
-                error_log(print_r($res));
+                // error_log(print_r($res));
 
                 $order->update_status('cancelled');
                 update_post_meta($order_id, 'gokada_order_status', 'CANCELLED');
@@ -312,7 +338,12 @@ class WC_Gokada_Delivery
      */
     public function update_order_shipping_status($order_id)
     {
-        error_log('update stats');
+        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
+			return;
+        }
+        
+        // error_log('update stats');
         $order = wc_get_order($order_id);
 
         $gokada_order_id = $order->get_meta('gokada_delivery_order_id');
@@ -323,7 +354,7 @@ class WC_Gokada_Delivery
             ));
 
             $order_status = $this->statuses[$res['status']];
-            error_log($res['status']);
+            // error_log($res['status']);
 
             update_post_meta($order_id, 'gokada_order_status', $order_status);
 
@@ -348,6 +379,9 @@ class WC_Gokada_Delivery
      */
     public function add_view_order_tracking($order)
     {
+        if ($this->settings['enabled'] == 'no') {
+            return;
+        }
         $order = wc_get_order($order);
 
         $pickup_tracking_url = $order->get_meta('gokada_delivery_pickup_tracking_url');
@@ -438,7 +472,7 @@ class WC_Gokada_Delivery
     }
 
     /**
-     * Returns the main gokada Delivery Instance.
+     * Returns the main Gokada Delivery Instance.
      *
      * Ensures only one instance is/can be loaded.
      *
@@ -465,6 +499,10 @@ class WC_Gokada_Delivery
      * @param int|\number sender/receiver phone number
      */
     public static function normalize_number($number) {
+        if (empty($number)) {
+            return;
+        }
+
         $phone_number_build = "";
         $phone_number_raw = str_replace([' ','-','(',')'], [''], $number);
         
@@ -499,7 +537,7 @@ class WC_Gokada_Delivery
 
 
 /**
- * Returns the One True Instance of WooCommerce GokadaDelivery.
+ * Returns the Gokada Delivery instance.
  *
  * @since 1.0.0
  *
