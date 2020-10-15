@@ -1,23 +1,62 @@
-=== Gokada Delivery for Woocommerce ===
-
-WIP
+=== Gokada Delivery for WooCommerce ===
+Minimum PHP version: 5.4
+Minimum WordPress version: 5.0
+Minimum Woocommerce version: 4.0
 
 == Description ==
- 
-WIP
+
+This is a Paystack payment gateway for WooCommerce.
+
+This plugin allows you to create Gokada deliveries for your WooCommerce orders. To get an API key, visit [business.gokada.ng](https://business.gokada.ng) and signup for a Gokada Developer account.
+
+= Note =
+
+Gokada currently serves only __Lagos, Nigeria__.
+
+= Features =
+
+*   __Create deliveries__: Get access to hundreds of qualified pilots and deliver anywhere in Lagos
+*   __Schedule tasks__: Choose whether to schedule delivery immediately payment is made, at a time of your choice, or manually via the Woocommerce dashboard
+*   __Tracking__: Get real-time tracking links for you and your customers
 
 == Installation ==
- 
-WIP
 
-== Capabilities of the Gokada Delivery Integration ==
+= Manual Installation =
+1. 	Download the plugin zip file
+2. 	Login to your WordPress Admin. Click on "Plugins > Add New" from the left hand menu.
+3.  Click on the "Upload" option, then click "Choose File" to select the zip file from your computer. Once selected, press "OK" and press the "Install Now" button.
+4.  Activate the plugin.
+5. 	Open the settings page for WooCommerce and click the "Checkout" tab.
+6. 	Click on the __Paystack__ link from the available Checkout Options
+6.  Add a new Shipping Zone, with the `Zone Region` set as __Lagos__. Click on `Add Shipping Method` and select __Gokada Delviery__ from the list of options.
+7.  Configure your __Gokada Delivery__ settings. See below for details.
 
-WIP
+
+
+= Configure the plugin =
+To configure the plugin, go to __WooCommerce > Settings__ from the left hand menu, then click __Shipping__ from the top tab. You will see __Paystack__ as part of the available Shipping Options. Click on it to configure the payment gateway.
+
+* __Enable/Disable__ - check the box to enable the Gokada Delivery shipping method.
+* __Mode__ - Select whether to enable test or live mode.
+* __API Key__ - Depending on the mode selected, enter your test or live API Key here.
+* __Schedule Shipping Task__ - Choose when Gokada orders are created.
+* __Additional Handling Fee__ - Add an additional handling fee to the delivery total.
+* __Pickup Delay Time__ - Enter a delay for auto-created Gokada deliveries.
+* __Pickup Schedule Time__ - Enter a daily time for scheduled Gokada deliveries.
+* __Pickup Country__ - Your store's country __(Default: Nigeria)__.
+* __Pickup State__ - Your store's state __(Default: Lagos)__.
+* __Pickup City__ - Your store's city.
+* __Pickup Address__ - Your store's address.
+* __Sender Name__ - Your store's name.
+* __Sender Phone Number__ - Your store's phone number.
+* __Sender Email__ - Your store's email address.
+* Click on __Save Changes__.
+
+= Note =
+
+Please ensure `Pickup City`, `Pickup Address` and `Sender Phone Number` fields are filled and correct, to avoid unwanted errors.
+
 
 == Frequently Asked Questions ==
 
-WIP
-
-== Changelog ==
-
-WIP
+Visit [gokada.ng/faq](https://www.gokada.ng/faq).
