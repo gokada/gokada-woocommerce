@@ -103,7 +103,7 @@ class WC_Gokada_Delivery
         /**
          * Actions
          */
-        error_log($this->settings['shipping_is_scheduled_on']);
+        // error_log($this->settings['shipping_is_scheduled_on']);
         $shipping_is_scheduled_on = $this->settings['shipping_is_scheduled_on'];
         if ($shipping_is_scheduled_on == 'order_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
             // create order when \WC_Order::payment_complete() is called
@@ -261,10 +261,10 @@ class WC_Gokada_Delivery
                 'delivery_email'          => $receiver_email,
                 'pickup_datetime'         => $pickup_datetime
             );
-            error_log(print_r($params, true));
+            // error_log(print_r($params, true));
 
             $res = $api->create_task($params);
-            error_log(print_r($res, true));
+            // error_log(print_r($res, true));
 
             if ($res['order_id']) {
                 $status = $api->get_order_details(
@@ -273,7 +273,7 @@ class WC_Gokada_Delivery
                         'order_id'   =>  $res['order_id']
                     )
                 );
-                error_log(print_r($status, true));
+                // error_log(print_r($status, true));
             }
 
             $order->add_order_note("Gokada Delivery: Successfully created order");
@@ -312,7 +312,7 @@ class WC_Gokada_Delivery
                     'api_key'    => $this->settings['api_key'],
                     'order_id'   =>  $gokada_order_id
                 ));
-                error_log(print_r($res));
+                // error_log(print_r($res));
 
                 $order->update_status('cancelled');
                 update_post_meta($order_id, 'gokada_order_status', 'CANCELLED');
@@ -343,7 +343,7 @@ class WC_Gokada_Delivery
 			return;
         }
         
-        error_log('update stats');
+        // error_log('update stats');
         $order = wc_get_order($order_id);
 
         $gokada_order_id = $order->get_meta('gokada_delivery_order_id');
@@ -354,7 +354,7 @@ class WC_Gokada_Delivery
             ));
 
             $order_status = $this->statuses[$res['status']];
-            error_log($res['status']);
+            // error_log($res['status']);
 
             update_post_meta($order_id, 'gokada_order_status', $order_status);
 
