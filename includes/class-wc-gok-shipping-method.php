@@ -79,9 +79,9 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'title'       => 	__('Mode'),
 				'hidden'		  => 'true',
 				'type'        => 	'select',
-				'description' => 	__('Default is (Sandbox), choose (Live) when your ready to start processing orders via gokada delivery'),
-				'default'     => 	'sandbox',
-				'options'     => 	array('sandbox' => 'Sandbox', 'live' => 'Live'),
+				'description' => 	__('Default is (Test), choose (Live) when your ready to start processing orders via gokada delivery'),
+				'default'     => 	'test',
+				'options'     => 	array('test' => 'Test', 'live' => 'Live'),
 			),
 			'api_key' => array(
 				'title'       => 	__('API Key'),
@@ -182,8 +182,8 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			return;
 		}
 
-		if ($this->get_option('mode') == 'sandbox' && strpos($this->get_option('api_key'), 'test') != 0) {
-			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
+		if ($this->get_option('mode') == 'test' && strpos($this->get_option('api_key'), 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
 		}
 
@@ -224,7 +224,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			$pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
 		}
 
-		$test_mode = $this->get_option('mode') == 'sandbox' ? true : false;
+		$test_mode = $this->get_option('mode') == 'test' ? true : false;
 
 		$params = array(
 			'api_key' => $this->get_option('api_key'),

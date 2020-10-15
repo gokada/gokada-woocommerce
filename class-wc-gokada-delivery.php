@@ -176,8 +176,8 @@ class WC_Gokada_Delivery
 
     public function create_order_shipping_task($order_id)
     {
-        if ($this->settings['mode'] == 'sandbox' && strpos($this->settings['api_key'], 'test') != 0) {
-			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
+        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
         }
         
@@ -297,8 +297,8 @@ class WC_Gokada_Delivery
      */
     public function cancel_order_shipping_task($order_id)
     {
-        if ($this->settings['mode'] == 'sandbox' && strpos($this->settings['api_key'], 'test') != 0) {
-			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
+        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
         }
 
@@ -338,8 +338,8 @@ class WC_Gokada_Delivery
      */
     public function update_order_shipping_status($order_id)
     {
-        if ($this->settings['mode'] == 'sandbox' && strpos($this->settings['api_key'], 'test') != 0) {
-			wc_add_notice('Gokada Error: Production API Key used in Sandbox mode', 'error');
+        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
         }
         

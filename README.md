@@ -42,7 +42,7 @@ Gokada currently serves only **Lagos, Nigeria**.
 To configure the plugin, go to **WooCommerce > Settings** from the left hand menu, then click **Shipping** from the top tab. You will see **Gokada Delivery** as part of the available Shipping Options. Click on it to configure the plugin.
 
 - **Enable/Disable** - check the box to enable the Gokada Delivery shipping method.
-- **Mode** - Select whether to enable sandbox (test) or live mode.
+- **Mode** - Select whether to enable test or live mode.
 - **API Key** - Depending on the mode selected, enter your test or live API Key here.
 - **Schedule Shipping Task** - Choose when Gokada orders are created.
 - **Additional Handling Fee** - Add an additional handling fee to the delivery total.

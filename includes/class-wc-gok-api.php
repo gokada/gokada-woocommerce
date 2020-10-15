@@ -6,7 +6,7 @@ class WC_Gokada_Delivery_API
 {
     public function __construct($settings = array())
     {
-        $env = isset($settings['mode']) ? $settings['mode'] : 'sandbox';
+        $env = isset($settings['mode']) ? $settings['mode'] : 'test';
 
         // $this->request_url = ('live' === $env) ? 'https://api.gokada.ng/' : 'http://gokada.local/';
         $this->request_url = 'https://api.gokada.ng/';
