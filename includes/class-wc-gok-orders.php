@@ -129,7 +129,7 @@ class WC_Gokada_Delivery_Orders
             $actions['wc_gokada_delivery_update_status'] = __('Update Order Status (via Gokada delivery)');
         }
         
-        //create gokada order
+        //create Gokada order
         if ($this->settings['shipping_is_scheduled_on'] == 'shipment_submit' && !$theorder->get_meta('gokada_delivery_order_id')) {
             $actions['wc_gokada_delivery_create'] = __('Create Gokada Order');
         }
