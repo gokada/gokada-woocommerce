@@ -30,7 +30,8 @@ class WC_Gokada_Delivery_Orders
 
         if ($this->settings['enabled'] == 'yes') {
             // add bulk action to update order status for multiple orders from Gokada
-            add_action('admin_footer-edit.php', array($this, 'add_order_bulk_actions'));
+            add_action('admin_footer-edit.php', array($this, 'create_order_bulk_actions'));
+            add_action('admin_footer-edit.php', array($this, 'update_order_bulk_actions'));
             add_action('load-edit.php', array($this, 'process_order_bulk_actions'));
 
             // add 'Gokada Delivery Information' order meta box
@@ -52,7 +53,29 @@ class WC_Gokada_Delivery_Orders
      *
      * @since 1.0
      */
-    public function add_order_bulk_actions()
+    public function create_order_bulk_actions()
+    {
+        global $post_type, $post_status;
+
+        if ($post_type == 'shop_order' && $post_status != 'trash' && $this->settings['shipping_is_scheduled_on'] == 'manual_submit') {
+            ?>
+                <script type="text/javascript">
+                    jQuery(document).ready(function($) {
+                        $('select[name^=action]').append(
+                            $('<option>').val('create_order').text('<?php _e('Create Gokada Delivery Order'); ?>')
+                        );
+                    });
+                </script>
+            <?php
+        }
+    }
+
+        /**
+     * Add "Update Gokada Order Status" custom bulk action to the 'Orders' page bulk action drop-down
+     *
+     * @since 1.0
+     */
+    public function update_order_bulk_actions()
     {
         global $post_type, $post_status;
 
@@ -61,7 +84,7 @@ class WC_Gokada_Delivery_Orders
                 <script type="text/javascript">
                     jQuery(document).ready(function($) {
                         $('select[name^=action]').append(
-                            $('<option>').val('update_order_status').text('<?php _e('Update order status (via Gokada Delivery)'); ?>')
+                            $('<option>').val('update_order_status').text('<?php _e('Update Gokada Delivery Order'); ?>')
                         );
                     });
                 </script>
@@ -77,16 +100,18 @@ class WC_Gokada_Delivery_Orders
     public function process_order_bulk_actions()
     {
         global $typenow;
+        error_log('processing');
 
         if ('shop_order' == $typenow) {
             // get the action
             $wp_list_table = _get_list_table('WP_Posts_List_Table');
             $action        = $wp_list_table->current_action();
-
+            error_log($action);
             // return if not processing our actions
-            if (!in_array($action, array('update_order_status'))) {
+            if (!in_array($action, array('update_order_status')) && !in_array($action, array('create_order'))) {
                 return;
             }
+            error_log('pro 2');
 
             // security check
             check_admin_referer('bulk-posts');
@@ -104,12 +129,30 @@ class WC_Gokada_Delivery_Orders
             // give ourselves an unlimited timeout if possible
             @set_time_limit(0);
 
-            foreach ($order_ids as $order_id) {
-                try {
-                    wc_gokada_delivery()->update_order_shipping_status($order_id);
-                } catch (\Exception $e) {
+            if (in_array($action, array('update_order_status'))) {
+                foreach ($order_ids as $order_id) {
+                    try {
+                        $order = wc_get_order( $order_id );
+                        if ($order->get_meta('gokada_delivery_order_id')) {
+                            wc_gokada_delivery()->update_order_shipping_status($order_id);
+                        }
+                    } catch (\Exception $e) {
+                    }
                 }
             }
+
+            else if (in_array($action, array('create_order'))) {
+                foreach ($order_ids as $order_id) {
+                    try {
+                        $order = wc_get_order( $order_id );
+                        if (!$order->get_meta('gokada_delivery_order_id')) {
+                            wc_gokada_delivery()->create_order_shipping_task($order_id);
+                        }
+                    } catch (\Exception $e) {
+                    }
+                }
+            }
+            
         }
     }
 

@@ -94,6 +94,7 @@ Visit <a href="https://www.gokada.ng/faq" target="_blank">gokada.ng/faq</a>.
 * Scheduled orders are now created once the order status is "Processing"
 * Display errors on order page
 * Allow Retry of failed orders
+* Allow Bulk Order creation on manual submit mode
  
 ### 1.0 - October, 2020 =
 * First release
