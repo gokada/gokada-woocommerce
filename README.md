@@ -46,7 +46,8 @@ To configure the plugin, go to **WooCommerce > Settings** from the left-hand men
 
 - **Enable/Disable** - check the box to enable the Gokada Delivery shipping method.
 - **Mode** - Select whether to enable test or live mode.
-- **API Key** - Depending on the mode selected, enter your test or live API Key here.
+- **Test API Key** - Enter your test API Key here.
+- **Live API Key** - Enter your live API Key here.
 - **Schedule Shipping Task** - Choose when Gokada orders are created.
 - **Additional Handling Fee** - Add an additional handling fee to the delivery total.
 - **Pickup Delay Time** - Enter a delay for auto-created Gokada deliveries.
@@ -68,7 +69,32 @@ To configure the plugin, go to **WooCommerce > Settings** from the left-hand men
 
 Please ensure `Pickup City`, `Pickup Address` and `Sender Phone Number` fields are filled and correct, to avoid unwanted errors.
 
+## Usage
+
+### Manually creating orders
+
+
+To manually create Gokada Delivery orders if you have selected this option, go to the Woocommerce Orders page on **WooCommerce > Orders** and click on the order to the Detail page. On the top-right side of the page, select "Create Gokada Delivery order" from **Order Actions** and click the **>** button next to it.
+
+
+ <img src="./assets/screenshots/screenshot-3.png" alt="screenshot 2" width="500"/>
+    
+
 
 ## Frequently Asked Questions
 
 Visit <a href="https://www.gokada.ng/faq" target="_blank">gokada.ng/faq</a>.
+
+
+## Changelog ##
+ 
+### 1.1 - October, 2020 =
+* Different fields for Test and Live API keys
+* Create orders manually from Order page
+* Scheduled orders are now created once the order status is "Processing"
+* Display errors on order page
+* Allow Retry of failed orders
+* Allow Bulk Order creation on manual submit mode
+ 
+### 1.0 - October, 2020 =
+* First release

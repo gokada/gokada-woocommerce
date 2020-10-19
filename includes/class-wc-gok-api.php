@@ -8,7 +8,7 @@ class WC_Gokada_Delivery_API
     {
         $env = isset($settings['mode']) ? $settings['mode'] : 'test';
 
-        // $this->request_url = ('live' === $env) ? 'https://api.gokada.ng/' : 'http://gokada.local/';
+        // $this->request_url = 'http://gokada.local/';
         $this->request_url = 'https://api.gokada.ng/';
     }
 
@@ -19,7 +19,6 @@ class WC_Gokada_Delivery_API
 
     public function create_task($params)
     {
-        // error_log('creating');
         return $this->send_request('api/developer/order_create', $params);
     }
 
@@ -82,12 +81,7 @@ class WC_Gokada_Delivery_API
             $body = wp_remote_retrieve_body($res);
             
             if (null !== ($json = json_decode($body, true))) {
-                if (isset($json['error']))
-                    throw new Exception("{$json['message']}");
-                else {
-                    return $json;
-                }
-                    
+                return $json;
             } else // Un-decipherable message
                 throw new Exception(__('There was an issue connecting to Gokada delivery. Try again later.'));
         }
