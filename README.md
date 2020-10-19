@@ -73,9 +73,12 @@ Please ensure `Pickup City`, `Pickup Address` and `Sender Phone Number` fields a
 
 ### Manually creating orders
 
+
 To manually create Gokada Delivery orders if you have selected this option, go to the Woocommerce Orders page on **WooCommerce > Orders** and click on the order to the Detail page. On the top-right side of the page, select "Create Gokada Delivery order" from **Order Actions** and click the **>** button next to it.
 
-    <img src="./assets/screenshots/screenshot-2.png" alt="screenshot 2" width="500"/>
+
+ <img src="./assets/screenshots/screenshot-3.png" alt="screenshot 2" width="500"/>
+    
 
 
 ## Frequently Asked Questions
