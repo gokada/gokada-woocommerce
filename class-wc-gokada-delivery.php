@@ -103,7 +103,6 @@ class WC_Gokada_Delivery
         /**
          * Actions
          */
-        // error_log($this->settings['shipping_is_scheduled_on']);
         $shipping_is_scheduled_on = $this->settings['shipping_is_scheduled_on'];
         if ($shipping_is_scheduled_on == 'order_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
             // create order when \WC_Order::payment_complete() is called
@@ -176,7 +175,7 @@ class WC_Gokada_Delivery
 
     public function create_order_shipping_task($order_id)
     {
-        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+        if ($this->settings['mode'] == 'test' && !strpos($this->settings['test_api_key'], 'test')) {
 			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
         }
@@ -245,8 +244,10 @@ class WC_Gokada_Delivery
                 $pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
             }
 
+            $key = $this->settings['mode'] == 'test' ? $this->settings['test_api_key'] : $this->settings['live_api_key'];
+
             $params = array(
-                'api_key'                 => $this->settings['api_key'],
+                'api_key'                 => $key,
                 'pickup_address'          => $pickup_address,
                 'pickup_latitude'         => $pickup_coordinate['lat'],
                 'pickup_longitude'        => $pickup_coordinate['long'],
@@ -269,7 +270,7 @@ class WC_Gokada_Delivery
             if ($res['order_id']) {
                 $status = $api->get_order_details(
                     array(
-                        'api_key'    => $this->settings['api_key'],
+                        'api_key'    => $key,
                         'order_id'   =>  $res['order_id']
                     )
                 );
@@ -297,11 +298,12 @@ class WC_Gokada_Delivery
      */
     public function cancel_order_shipping_task($order_id)
     {
-        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+        if ($this->settings['mode'] == 'test' && !strpos($this->settings['test_api_key'], 'test')) {
 			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
         }
 
+        $key = $this->settings['mode'] == 'test' ? $this->settings['test_api_key'] : $this->settings['live_api_key'];
         $order = wc_get_order($order_id);
         $gokada_order_id = $order->get_meta('gokada_delivery_order_id');
 
@@ -309,7 +311,7 @@ class WC_Gokada_Delivery
 
             try {
                 $res = $this->get_api()->cancel_task(array(
-                    'api_key'    => $this->settings['api_key'],
+                    'api_key'    => $key,
                     'order_id'   =>  $gokada_order_id
                 ));
                 // error_log(print_r($res));
@@ -338,18 +340,19 @@ class WC_Gokada_Delivery
      */
     public function update_order_shipping_status($order_id)
     {
-        if ($this->settings['mode'] == 'test' && strpos($this->settings['api_key'], 'test') != 0) {
+        if ($this->settings['mode'] == 'test' && !strpos($this->settings['test_api_key'], 'test')) {
 			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
         }
         
         // error_log('update stats');
         $order = wc_get_order($order_id);
+        $key = $this->settings['mode'] == 'test' ? $this->settings['test_api_key'] : $this->settings['live_api_key'];
 
         $gokada_order_id = $order->get_meta('gokada_delivery_order_id');
         if ($gokada_order_id) {
             $res = $this->get_api()->get_order_details( array(
-                'api_key'    => $this->settings['api_key'],
+                'api_key'    => $key,
                 'order_id'   =>  $gokada_order_id
             ));
 
@@ -388,26 +391,25 @@ class WC_Gokada_Delivery
         $delivery_tracking_url = $order->get_meta('gokada_delivery_delivery_tracking_url');
 
         if ($pickup_tracking_url) {
-?>
-            <p class="wc-gokada-delivery-track-pickup">
-                <a href="<?php echo esc_url($pickup_tracking_url); ?>" class="button" target="_blank">Track Gokada Pickup</a>
-            </p>
+            ?>
+                <p class="wc-gokada-delivery-track-pickup">
+                    <a href="<?php echo esc_url($pickup_tracking_url); ?>" class="button" target="_blank">Track Gokada Pickup</a>
+                </p>
 
-        <?php
+            <?php
         }
-
         if ($delivery_tracking_url) {
-        ?>
-            <p class="wc-gokada-delivery-track-delivery">
-                <a href="<?php echo esc_url($delivery_tracking_url); ?>" class="button" target="_blank">Track Gokada Delivery</a>
-            </p>
-<?php
+            ?>
+                <p class="wc-gokada-delivery-track-delivery">
+                    <a href="<?php echo esc_url($delivery_tracking_url); ?>" class="button" target="_blank">Track Gokada Delivery</a>
+                </p>
+            <?php
         }
         if (!$pickup_tracking_url) {
             ?>
                  <p>Please Check Back for Gokada Delivery Tracking Information</p>
-    <?php
-            }
+            <?php
+        }
     }
 
     public function remove_address_2_checkout_fields($fields)
@@ -489,7 +491,7 @@ class WC_Gokada_Delivery
         return self::$instance;
     }
 
-     /**
+    /**
      * Normalizes phone number to required format by endpoint.
      *
      * @internal

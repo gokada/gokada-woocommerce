@@ -3,9 +3,9 @@
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
- * gokada Delivery Shipping Method Class
+ * Gokada Delivery Shipping Method Class
  *
- * Provides real-time shipping rates from gokada delivery and handle order requests
+ * Provides real-time shipping rates from Gokada delivery and handle order requests
  *
  * @since 1.0
  * @extends \WC_Shipping_Method
@@ -22,7 +22,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 		$this->id                 = 'gokada_delivery';
 		$this->instance_id 		  = absint($instance_id);
 		$this->method_title       = __('Gokada Delivery');
-		$this->method_description = __('Get your parcels delivered better, cheaper and quicker via gokada Delivery');
+		$this->method_description = __('Get your parcels delivered better, cheaper and quicker via Gokada Delivery');
 
 		$this->supports  = array(
 			'settings',
@@ -39,7 +39,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 	/**
 	 * Init.
 	 *
-	 * Initialize gokada delivery shipping method.
+	 * Initialize Gokada Delivery shipping method.
 	 *
 	 * @since 1.0.0
 	 */
@@ -55,7 +55,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 	/**
 	 * Init fields.
 	 *
-	 * Add fields to the gokada delivery settings page.
+	 * Add fields to the Gokada Delivery settings page.
 	 *
 	 * @since 1.0.0
 	 */
@@ -79,14 +79,19 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'title'       => 	__('Mode'),
 				'hidden'		  => 'true',
 				'type'        => 	'select',
-				'description' => 	__('Default is (Test), choose (Live) when your ready to start processing orders via gokada delivery'),
+				'description' => 	__('Default is (Test), choose (Live) when your ready to start processing orders via Gokada Delivery'),
 				'default'     => 	'test',
 				'options'     => 	array('test' => 'Test', 'live' => 'Live'),
 			),
-			'api_key' => array(
-				'title'       => 	__('API Key'),
+			'test_api_key' => array(
+				'title'       => 	__('Test API Key'),
 				'type'        => 	'password',
-				'description'   => __( '<a href="https://business.gokada.ng/" target="_blank">Get your Gokada Developer API token</a>'),
+				'default'     => 	__('')
+            ),
+            'live_api_key' => array(
+				'title'       => 	__('Live API Key'),
+				'type'        => 	'password',
+				'description'   => __( '<a href="https://business.gokada.ng/" target="_blank">Get your Gokada Developer API key</a>'),
 				'default'     => 	__('')
 			),
 			'shipping_is_scheduled_on' => array(
@@ -96,9 +101,10 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'default'      =>	__('order_submit'),
 				'desc_tip'          => false,
 				'options'      =>	array(
-                                        'order_submit' => 'Order submit with complete payment (Auto Delivery)',
+                                        'payment_submit' => 'When payment is complete (should be used with online payments)',
+                                        'order_submit' => 'When order is complete',
                                         'scheduled_submit' => 'Schedule a time interval to submit all pending orders',
-                                        'shipment_submit' => 'Shipment submit from admin dashboard'
+                                        'shipment_submit' => 'Manually create deliveries from admin dashboard'
                 ),
 			),
 			'shipping_handling_fee' => array(
@@ -127,7 +133,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'pickup_country' => array(
 				'title'       => 	__('Pickup Country'),
 				'type'        => 	'select',
-				'description' => 	__('gokada delivery/pickup is only available for Nigeria'),
+				'description' => 	__('Gokada Delivery/Pickup is only available for Nigeria'),
 				'default'     => 	'NG',
 				'options'     => 	array("NG" => "Nigeria", "" => "Please Select"),
 			),
@@ -183,7 +189,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			return;
 		}
 
-		if ($this->get_option('mode') == 'test' && strpos($this->get_option('api_key'), 'test') != 0) {
+        if ($this->get_option('mode') == 'test' && strpos($this->get_option('test_api_key'), 'test')) {
 			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
 		}
@@ -225,10 +231,10 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			$pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
 		}
 
-		$test_mode = $this->get_option('mode') == 'test' ? true : false;
+        $key = $this->get_option('mode') == 'test' ? $this->get_option('test_api_key') : $this->get_option('live_api_key');
 
 		$params = array(
-			'api_key' => $this->get_option('api_key'),
+			'api_key' => $key,
 			'pickup_latitude' => $pickup_coordinate['lat'],
 			'pickup_longitude' => $pickup_coordinate['long'],
 			'delivery_latitude' => $delivery_coordinate['lat'],

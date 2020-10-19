@@ -19,7 +19,6 @@ class WC_Gokada_Delivery_API
 
     public function create_task($params)
     {
-        // error_log('creating');
         return $this->send_request('api/developer/order_create', $params);
     }
 
