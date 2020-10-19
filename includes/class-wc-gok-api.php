@@ -8,8 +8,8 @@ class WC_Gokada_Delivery_API
     {
         $env = isset($settings['mode']) ? $settings['mode'] : 'test';
 
-        $this->request_url = 'http://gokada.local/';
-        // $this->request_url = 'https://api.gokada.ng/';
+        // $this->request_url = 'http://gokada.local/';
+        $this->request_url = 'https://api.gokada.ng/';
     }
 
     public function get_order_details($params)

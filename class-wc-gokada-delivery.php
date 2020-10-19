@@ -251,7 +251,7 @@ class WC_Gokada_Delivery
             // error_log(print_r($params, true));
 
             $res = $api->create_task($params);
-            error_log(print_r($res, true));
+            // error_log(print_r($res, true));
 
             if ($res['order_id']) {
                 $status = $api->get_order_details(
