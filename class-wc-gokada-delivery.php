@@ -263,6 +263,7 @@ class WC_Gokada_Delivery
 
                 $order->add_order_note("Gokada Delivery: Successfully created order");
 
+                update_post_meta($order_id, 'gokada_delivery_failed', false);
                 update_post_meta($order_id, 'gokada_delivery_order_id', $res['order_id']);
                 update_post_meta($order_id, 'gokada_delivery_pickup_tracking_url', $status['pickup_tracking_link']);
                 update_post_meta($order_id, 'gokada_order_status', $this->statuses[$status['status']]); // UNASSIGNED
@@ -273,6 +274,7 @@ class WC_Gokada_Delivery
                 // error_log(print_r($status, true));
             }
             else {
+                update_post_meta($order_id, 'gokada_delivery_failed', true);
                 if ($res['message']) {
                     $order->add_order_note("Gokada Delivery Error:". $res['message']);
                 }

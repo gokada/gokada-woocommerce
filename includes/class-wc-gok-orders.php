@@ -130,8 +130,13 @@ class WC_Gokada_Delivery_Orders
         }
 
         // add update shipping status action
-        if ($theorder->get_meta('gokada_delivery_order_id')) {
+        else if ($theorder->get_meta('gokada_delivery_order_id')) {
             $actions['wc_gokada_delivery_update_status'] = __('Update order status (via Gokada Delivery)');
+        }
+
+        //check for Gokada order retries after failure
+        else if ($theorder->get_meta('gokada_delivery_failed')) {
+            $actions['wc_gokada_delivery_create'] = __('Retry Gokada Delivery order');
         }
 
         return $actions;
