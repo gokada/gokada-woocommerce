@@ -251,7 +251,7 @@ class WC_Gokada_Delivery
             // error_log(print_r($params, true));
 
             $res = $api->create_task($params);
-            // error_log(print_r($res, true));
+            error_log(print_r($res, true));
 
             if ($res['order_id']) {
                 $status = $api->get_order_details(
@@ -260,18 +260,27 @@ class WC_Gokada_Delivery
                         'order_id'   =>  $res['order_id']
                     )
                 );
+
+                $order->add_order_note("Gokada Delivery: Successfully created order");
+
+                update_post_meta($order_id, 'gokada_delivery_order_id', $res['order_id']);
+                update_post_meta($order_id, 'gokada_delivery_pickup_tracking_url', $status['pickup_tracking_link']);
+                update_post_meta($order_id, 'gokada_order_status', $this->statuses[$status['status']]); // UNASSIGNED
+                update_post_meta($order_id, 'gokada_delivery_delivery_tracking_url', $status['dropoff_tracking_links'][0]);
+                update_post_meta($order_id, 'gokada_delivery_order_response', $res);
+                $note = sprintf(__('Shipment scheduled via Gokada delivery (Order Id: %s)'), $res['order_id']);
+                $order->add_order_note($note);
                 // error_log(print_r($status, true));
             }
-
-            $order->add_order_note("Gokada Delivery: Successfully created order");
-
-            update_post_meta($order_id, 'gokada_delivery_order_id', $res['order_id']);
-            update_post_meta($order_id, 'gokada_delivery_pickup_tracking_url', $status['pickup_tracking_link']);
-            update_post_meta($order_id, 'gokada_order_status', $this->statuses[$status['status']]); // UNASSIGNED
-            update_post_meta($order_id, 'gokada_delivery_delivery_tracking_url', $status['dropoff_tracking_links'][0]);
-            update_post_meta($order_id, 'gokada_delivery_order_response', $res);
-            $note = sprintf(__('Shipment scheduled via Gokada delivery (Order Id: %s)'), $res['order_id']);
-            $order->add_order_note($note);
+            else {
+                if ($res['message']) {
+                    $order->add_order_note("Gokada Delivery Error:". $res['message']);
+                }
+                else {
+                    $message = "A Fatal error occured while processing order. Please Contact Gokada Support";
+                    $order->add_order_note("Gokada Delivery Error:". $message);
+                }
+            }   
         }
     }
 

@@ -92,6 +92,7 @@ Visit <a href="https://www.gokada.ng/faq" target="_blank">gokada.ng/faq</a>.
 * Different fields for Test and Live API keys
 * Create orders manually from Order page
 * Scheduled orders are now created once the order status is "Processing"
+* Display errors on order page
  
 ### 1.0 - October, 2020 =
 * First release
