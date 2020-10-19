@@ -104,10 +104,10 @@ class WC_Gokada_Delivery
          * Actions
          */
         $shipping_is_scheduled_on = $this->settings['shipping_is_scheduled_on'];
-        if ($shipping_is_scheduled_on == 'order_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
-            // create order when \WC_Order::payment_complete() is called
+        if ($shipping_is_scheduled_on == 'payment_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
             add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
-            // add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
+        } else if ($shipping_is_scheduled_on == 'order_submit') {
+            add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
         }
 
         add_action('woocommerce_shipping_init', array($this, 'load_shipping_method'));
@@ -132,21 +132,7 @@ class WC_Gokada_Delivery
 
         add_filter('woocommerce_shipping_calculator_enable_postcode', '__return_false');
   
-        function update_woocommerce_delivery_fee_on_change(){
-            if ( function_exists('is_checkout') && is_checkout() ) {
-                ?>
-                <script>
-                    window.addEventListener('load', function(){
-                        var el = document.getElementById("billing_address_1_field");
-                        el.className += ' update_totals_on_change';
-                        el = document.getElementById("billing_address_1_field");
-                        el.className += ' update_totals_on_change'; 
-                    });
-                </script>
-                <?php 
-            }
-            }
-            add_action('wp_print_footer_scripts', 'update_woocommerce_delivery_fee_on_change');
+        add_action('wp_print_footer_scripts', array($this, 'update_woocommerce_delivery_fee_on_change'));
         }
 
     /**
@@ -489,6 +475,30 @@ class WC_Gokada_Delivery
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Refresh Woocommerce Checkout on update of shipping totals
+     *
+     * @internal
+     *
+     * @since 2.0.0
+     *
+     * @param int|\number sender/receiver phone number
+     */
+    public function update_woocommerce_delivery_fee_on_change(){
+        if ( function_exists('is_checkout') && is_checkout() ) {
+            ?>
+            <script>
+                window.addEventListener('load', function(){
+                    var el = document.getElementById("billing_address_1_field");
+                    el.className += ' update_totals_on_change';
+                    el = document.getElementById("billing_address_1_field");
+                    el.className += ' update_totals_on_change'; 
+                });
+            </script>
+            <?php 
+        }
     }
 
     /**

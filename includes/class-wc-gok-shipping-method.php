@@ -101,10 +101,10 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'default'      =>	__('order_submit'),
 				'desc_tip'          => false,
 				'options'      =>	array(
-                                        'payment_submit' => 'When payment is complete (should be used with online payments)',
-                                        'order_submit' => 'When order is complete',
-                                        'scheduled_submit' => 'Schedule a time interval to submit all pending orders',
-                                        'shipment_submit' => 'Manually create deliveries from admin dashboard'
+                                        'payment_submit' => 'When payment is complete (should be used with online payment methods)',
+                                        'order_submit' => 'When order status is changed to Complete',
+                                        'scheduled_submit' => 'Schedule a daily time to submit all pending orders',
+                                        'manual_submit' => 'Manually create deliveries from admin dashboard'
                 ),
 			),
 			'shipping_handling_fee' => array(
@@ -189,7 +189,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			return;
 		}
 
-        if ($this->get_option('mode') == 'test' && strpos($this->get_option('test_api_key'), 'test')) {
+        if ($this->get_option('mode') == 'test' && !strpos($this->get_option('test_api_key'), 'test')) {
 			wc_add_notice('Gokada Error: Production API Key used in Test mode', 'error');
 			return;
 		}
