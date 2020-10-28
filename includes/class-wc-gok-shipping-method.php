@@ -103,7 +103,6 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'options'      =>	array(
                                         'payment_submit' => 'When payment is complete (should be used with online payment methods)',
                                         'order_submit' => 'When order status is changed to Complete',
-                                        'scheduled_submit' => 'Schedule a daily time to submit all pending orders',
                                         'manual_submit' => 'Manually create deliveries from admin dashboard'
                 ),
 			),
