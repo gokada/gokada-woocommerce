@@ -107,6 +107,24 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
                                         'manual_submit' => 'Manually create deliveries from admin dashboard'
                 ),
 			),
+			'pickup_delay_same' => array(
+				'title'       => 	__('Enter pickup delay time in hours (Auto Delivery only)'),
+				'type'        => 	'text',
+				'description' => 	__("Number of hours to delay pickup time by. Defaults to 0"),
+				'default'     => 	__('0')
+			),
+			'scheduled'       => array(
+				'title'       => __( 'Scheduled Deliveries' ),
+				'type'        => 'checkbox',
+				'description' => __( 'Schedule Deliveries allows you to schedule a daily time to submit all pending orders' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
+			),
+			'pickup_schedule_time' => array(
+				'title'       => 	__('Enter daily pickup time (For Scheduled Delivery)'),
+				'type'        => 	'time',
+				'description' => 	__("Allows you to specify daily time at which Gokada pickup should be made. Every Gokada order created after scheduled time gets shifted to the scheduled time next day"),
+			),
 			'shipping_handling_fee' => array(
 				'title'       => 	__('Additional handling fee applied'),
 				'type'        => 	'text',
@@ -119,16 +137,6 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'description'  =>	__('Select payment method.'),
 				'default'      =>	__('1'),
 				'options'      =>	array('1' => 'Wallet payment')
-			),
-			'pickup_delay_same' => array(
-				'title'       => 	__('Enter pickup delay time in hours (Auto Delivery only)'),
-				'type'        => 	'text',
-				'description' => 	__("Number of hours to delay pickup time by. Defaults to 0"),
-				'default'     => 	__('0')
-			),
-			'pickup_schedule_time' => array(
-				'title'       => 	__('Enter daily pickup time in hours (Scheduled Delivery only)'),
-				'type'        => 	'time',
 			),
 			'pickup_country' => array(
 				'title'       => 	__('Pickup Country'),
