@@ -112,7 +112,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'description' => 	__("Number of hours to delay pickup time by. Defaults to 0"),
 				'default'     => 	__('0')
 			),
-			'scheduled'       => array(
+			'scheduled_submit'       => array(
 				'title'       => __( 'Scheduled Deliveries' ),
 				'type'        => 'checkbox',
 				'description' => __( 'Schedule Deliveries allows you to schedule a daily time to submit all pending orders' ),
@@ -122,6 +122,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'pickup_schedule_time' => array(
 				'title'       => 	__('Enter daily pickup time (For Scheduled Delivery)'),
 				'type'        => 	'time',
+				'default'	  =>     '14:00',
 				'description' => 	__("Allows you to specify daily time at which Gokada pickup should be made. Every Gokada order created after scheduled time gets shifted to the scheduled time next day"),
 			),
 			'shipping_handling_fee' => array(
