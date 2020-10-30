@@ -133,7 +133,13 @@ class WC_Gokada_Delivery
         add_filter('woocommerce_shipping_calculator_enable_postcode', '__return_false');
   
         add_action('wp_print_footer_scripts', array($this, 'update_woocommerce_delivery_fee_on_change'));
-        }
+
+        add_action('wp_enqueue_scripts', array($this, 'script_load'));
+
+        add_action('wp_ajax_nopriv_autocomplete', array($this, 'get_autocomplete_results'));
+
+        add_action('wp_ajax_autocomplete', array($this, 'get_autocomplete_results'));
+    }
 
     /**
      * shipping_icon.
@@ -248,10 +254,8 @@ class WC_Gokada_Delivery
                 'delivery_email'          => $receiver_email,
                 'pickup_datetime'         => $pickup_datetime
             );
-            // error_log(print_r($params, true));
 
             $res = $api->create_task($params);
-            // error_log(print_r($res, true));
 
             if ($res['order_id']) {
                 $status = $api->get_order_details(
@@ -271,7 +275,6 @@ class WC_Gokada_Delivery
                 update_post_meta($order_id, 'gokada_delivery_order_response', $res);
                 $note = sprintf(__('Shipment scheduled via Gokada delivery (Order Id: %s)'), $res['order_id']);
                 $order->add_order_note($note);
-                // error_log(print_r($status, true));
             }
             else {
                 update_post_meta($order_id, 'gokada_delivery_failed', true);
@@ -311,7 +314,6 @@ class WC_Gokada_Delivery
                     'api_key'    => $key,
                     'order_id'   =>  $gokada_order_id
                 ));
-                // error_log(print_r($res));
 
                 $order->update_status('cancelled');
                 update_post_meta($order_id, 'gokada_order_status', 'CANCELLED');
@@ -342,7 +344,6 @@ class WC_Gokada_Delivery
 			return;
         }
         
-        // error_log('update stats');
         $order = wc_get_order($order_id);
         $key = $this->settings['mode'] == 'test' ? $this->settings['test_api_key'] : $this->settings['live_api_key'];
 
@@ -354,7 +355,6 @@ class WC_Gokada_Delivery
             ));
 
             $order_status = $this->statuses[$res['status']];
-            // error_log($res['status']);
 
             update_post_meta($order_id, 'gokada_order_status', $order_status);
 
@@ -555,6 +555,39 @@ class WC_Gokada_Delivery
         }
         
         return $phone_number_build;
+    }
+
+    public function script_load($where) {
+        wp_enqueue_script( 'gokada-woocommerce', plugin_dir_url( __FILE__ ) . '/assets/js/gokada-woocommerce.js', array( 'jquery' ) );
+        wp_localize_script( 'gokada-woocommerce', 'obj', $this->script_data() );
+    }
+
+    public function get_autocomplete_results() {
+        $query = $_POST['query'];
+        $url = 'https://love.gokada.ng/api/v1/promo/autocomplete?q=' . urlencode($query) . '&context=pickup&lat=0&lng=0&session=' . date('ymdHis');
+        $headers = array(
+            'Accept: application/json',
+            'Content-Type: application/json',
+        );
+
+        $req = curl_init();
+        curl_setopt($req, CURLOPT_URL, $url);
+        curl_setopt($req, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($req, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($req, CURLOPT_HEADER, 0);
+        
+        $res = curl_exec( $req );
+        curl_close($req);
+        print_r($res);
+        exit();
+    }
+
+    public function script_data() {
+        $data = array(
+            'ajax_url' => admin_url('admin-ajax.php')
+        );
+
+        return $data;
     }
 }
 
