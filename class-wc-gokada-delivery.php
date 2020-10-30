@@ -135,16 +135,18 @@ class WC_Gokada_Delivery
         // Update delivery fee on checkout page when address changes
         add_action('wp_print_footer_scripts', array($this, 'update_woocommerce_delivery_fee_on_change'));
 
+        // Add autocomplete script to frontend and admin pages
         add_action('wp_enqueue_scripts', array($this, 'script_load'));
         
         add_action('admin_enqueue_scripts', array($this, 'admin_script_load'));
 
+        // AJAX action for autocomplete
         add_action('wp_ajax_nopriv_autocomplete', array($this, 'get_autocomplete_results'));
 
         add_action('wp_ajax_autocomplete', array($this, 'get_autocomplete_results'));
 
+        // Save delivery location coordinates to order meta data
         add_action('woocommerce_checkout_create_order', array($this, 'save_location_to_order_meta'), 20, 2);
-
     }
 
     /**
@@ -427,6 +429,9 @@ class WC_Gokada_Delivery
     {
         unset($fields['billing']['billing_address_2']);
         unset($fields['shipping']['shipping_address_2']);
+        
+        unset($fields['billing']['billing_city']);
+        unset($fields['shipping']['shipping_city']);
 
         return $fields;
     }
