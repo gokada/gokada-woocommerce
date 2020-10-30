@@ -132,15 +132,19 @@ class WC_Gokada_Delivery
 
         add_filter('woocommerce_shipping_calculator_enable_postcode', '__return_false');
   
+        // Update delivery fee on checkout page when address changes
         add_action('wp_print_footer_scripts', array($this, 'update_woocommerce_delivery_fee_on_change'));
 
         add_action('wp_enqueue_scripts', array($this, 'script_load'));
+        
+        add_action('admin_enqueue_scripts', array($this, 'admin_script_load'));
 
         add_action('wp_ajax_nopriv_autocomplete', array($this, 'get_autocomplete_results'));
 
         add_action('wp_ajax_autocomplete', array($this, 'get_autocomplete_results'));
 
         add_action('woocommerce_checkout_create_order', array($this, 'save_location_to_order_meta'), 20, 2);
+
     }
 
     /**
@@ -568,8 +572,16 @@ class WC_Gokada_Delivery
     }
 
     public function script_load($where) {
-        wp_enqueue_script( 'gokada-woocommerce', plugin_dir_url( __FILE__ ) . '/assets/js/gokada-woocommerce.js', array( 'jquery' ) );
-        wp_localize_script( 'gokada-woocommerce', 'obj', $this->script_data() );
+        wp_enqueue_style('gokada-woocommerce', plugin_dir_url(__FILE__ ) . '/assets/css/gokada-woocommerce.css');
+        wp_enqueue_script('gokada-woocommerce', plugin_dir_url( __FILE__ ) . '/assets/js/gokada-woocommerce.js', array( 'jquery' ));
+        wp_localize_script('gokada-woocommerce', 'obj', $this->script_data());
+    }
+    
+    public function admin_script_load($where){
+        error_log($where);
+        wp_enqueue_style('gokada-woocommerce', plugin_dir_url(__FILE__ ) . '/assets/css/gokada-woocommerce.css');
+        wp_enqueue_script('gokada-woocommerce', plugin_dir_url( __FILE__ ) . '/assets/js/gokada-woocommerce-admin.js', array( 'jquery' ));
+        wp_localize_script('gokada-woocommerce', 'obj', $this->script_data());
     }
 
     public function get_autocomplete_results() {
