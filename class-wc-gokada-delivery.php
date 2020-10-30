@@ -139,6 +139,8 @@ class WC_Gokada_Delivery
         add_action('wp_ajax_nopriv_autocomplete', array($this, 'get_autocomplete_results'));
 
         add_action('wp_ajax_autocomplete', array($this, 'get_autocomplete_results'));
+
+        add_action('woocommerce_checkout_create_order', array($this, 'save_location_to_order_meta'), 20, 2);
     }
 
     /**
@@ -223,11 +225,19 @@ class WC_Gokada_Delivery
             // $delivery_date = date('Y-m-d H:i:s', date(strtotime('+ 4 hour', strtotime($pickup_date))));
 
             $api = $this->get_api();
-
+            
             $delivery_address = trim("$delivery_base_address $delivery_city, $delivery_state, $delivery_country");
-            $delivery_coordinate = $api->get_lat_lng($delivery_address);
-            if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
-                $delivery_coordinate = $api->get_lat_lng("$delivery_city, $delivery_state, $delivery_country");
+            $delivery_lat = $order->get_meta('delivery_lat');
+            $delivery_lng = $order->get_meta('delivery_lng');
+
+            if (isset($delivery_lat) && !empty($delivery_lat)) {
+                $delivery_coordinate['lat'] = $delivery_lat;
+                $delivery_coordinate['long'] = $delivery_lng;
+            } else {
+                $delivery_coordinate = $api->get_lat_lng($delivery_address);
+                if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
+                    $delivery_coordinate = $api->get_lat_lng("$delivery_city, $delivery_state, $delivery_country");
+                }
             }
 
             $pickup_address = trim("$pickup_base_address $pickup_city, $pickup_state, $pickup_country");
@@ -588,6 +598,13 @@ class WC_Gokada_Delivery
         );
 
         return $data;
+    }
+
+    public function save_location_to_order_meta( $order, $data ) {
+        if (isset($_POST['delivery_lat']) && !empty($_POST['delivery_lat'])) {
+            $order->update_meta_data('delivery_lat', sanitize_text_field($_POST['delivery_lat']));
+            $order->update_meta_data('delivery_lng', sanitize_text_field($_POST['delivery_lng']));
+        }
     }
 }
 

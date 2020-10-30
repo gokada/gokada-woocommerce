@@ -46,8 +46,8 @@
                     $div.on('click', function() {
                         let lat = $(this).attr('data-lat');
                         let lng = $(this).attr('data-lng');
-                        $('#billing-location-lat').val(lat);
-                        $('#billing-location-lng').val(lng);
+                        $('#delivery-location-lat').val(lat);
+                        $('#delivery-location-lng').val(lng);
                         let address = $(this).text();
                         _this.val(address);
                         $('.autocomplete-results', parent_context).slideUp('fast');
@@ -64,8 +64,8 @@
         $('#billing_address_1').attr('autocomplete', 'off')
             .after(`
                 <div class="autocomplete-results"></div>
-                <input type="hidden" value="" name="billing_lat" id="billing-location-lat">
-                <input type="hidden" value="" name="billing_lng" id="billing-location-lng">
+                <input type="hidden" value="" name="delivery_lat" id="delivery-location-lat">
+                <input type="hidden" value="" name="delivery_lng" id="delivery-location-lng">
             `)
             .donetyping(function($callback) {
                 autocomplete.call(this);
