@@ -1,0 +1,13 @@
+.autocomplete-results {
+    background: #ffffff;
+    max-width: 400px;
+}
+
+.autocomplete-results .entry {
+	cursor: pointer;
+	padding: 5px 0;
+}
+
+.autocomplete-results .entry:hover {
+	background: #f1f1f1;
+}

@@ -100,18 +100,15 @@ class WC_Gokada_Delivery_Orders
     public function process_order_bulk_actions()
     {
         global $typenow;
-        error_log('processing');
 
         if ('shop_order' == $typenow) {
             // get the action
             $wp_list_table = _get_list_table('WP_Posts_List_Table');
             $action        = $wp_list_table->current_action();
-            error_log($action);
             // return if not processing our actions
             if (!in_array($action, array('update_order_status')) && !in_array($action, array('create_order'))) {
                 return;
             }
-            error_log('pro 2');
 
             // security check
             check_admin_referer('bulk-posts');
