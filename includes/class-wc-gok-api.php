@@ -43,7 +43,6 @@ class WC_Gokada_Delivery_API
                 $body = wp_remote_retrieve_body($json);
                 $json = json_decode($body, true);
             }
-            // error_log(print_r($json));
             if (!is_wp_error($json)) {
                 $coord['lat']  = $json[0]['lat'];
                 $coord['long'] = $json[0]['lon'];

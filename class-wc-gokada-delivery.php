@@ -6,12 +6,12 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  * Main Gokada Delivery Class.
  *
  * @class    WC_Gokada_Delivery
- * @version  1.0.0
+ * @version  1.2.0
  */
 class WC_Gokada_Delivery
 {
     /** @var string version number */
-    const VERSION = '1.0.0';
+    const VERSION = '1.2.0';
 
     /** @var \WC_Gokada_Delivery_API api for this plugin */
     public $api;
@@ -104,7 +104,7 @@ class WC_Gokada_Delivery
          * Actions
          */
         $shipping_is_scheduled_on = $this->settings['shipping_is_scheduled_on'];
-        if ($shipping_is_scheduled_on == 'payment_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
+        if ($shipping_is_scheduled_on == 'payment_submit') {
             add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
         } else if ($shipping_is_scheduled_on == 'order_submit') {
             add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
@@ -124,7 +124,7 @@ class WC_Gokada_Delivery
         // Add shipping icon to the shipping label
         add_filter('woocommerce_cart_shipping_method_full_label', array($this, 'add_shipping_icon'), PHP_INT_MAX, 2);
 
-        add_filter('woocommerce_checkout_fields', array($this, 'remove_address_2_checkout_fields'));
+        add_filter('woocommerce_checkout_fields', array($this, 'edit_checkout_fields'));
 
         add_filter('woocommerce_shipping_methods', array($this, 'add_shipping_method'));
 
@@ -132,8 +132,19 @@ class WC_Gokada_Delivery
 
         add_filter('woocommerce_shipping_calculator_enable_postcode', '__return_false');
   
+        // Update delivery fee on checkout page when address changes
         add_action('wp_print_footer_scripts', array($this, 'update_woocommerce_delivery_fee_on_change'));
-        }
+
+        // Add autocomplete script to frontend and admin pages
+        add_action('wp_enqueue_scripts', array($this, 'script_load'));
+        
+        add_action('admin_enqueue_scripts', array($this, 'admin_script_load'));
+
+        // AJAX action for autocomplete
+        add_action('wp_ajax_nopriv_autocomplete', array($this, 'get_autocomplete_results'));
+
+        add_action('wp_ajax_autocomplete', array($this, 'get_autocomplete_results'));
+    }
 
     /**
      * shipping_icon.
@@ -186,9 +197,9 @@ class WC_Gokada_Delivery
             $sender_phone        = $this->normalize_number($this->settings['sender_phone_number']);
             $sender_email        = $this->settings['sender_email'];
             $pickup_base_address = $this->settings['pickup_base_address'];
-            $pickup_city         = $this->settings['pickup_state'];
             $pickup_state        = $this->settings['pickup_state'];
             $pickup_country      = $this->settings['pickup_country'];
+            $pickup_coordinates   = $this->settings['pickup_coordinates'];
             if (trim($pickup_country) == '') {
                 $pickup_country = 'NG';
             }
@@ -204,7 +215,7 @@ class WC_Gokada_Delivery
                 $pickup_datetime = date('Y-m-d H:i:s', date(strtotime("+" . $pickup_delay . " hour", strtotime($pickup_date))));
             }
 
-            else if ($this->settings['shipping_is_scheduled_on'] == 'scheduled_submit' && $this->settings['pickup_schedule_time']) {
+            else if ($this->settings['scheduled_submit'] && $this->settings['pickup_schedule_time']) {
                 $scheduled_time = $this->settings['pickup_schedule_time'];
                 $present_time = date('H:i');
                 if ($present_time < $scheduled_time) {
@@ -217,27 +228,28 @@ class WC_Gokada_Delivery
             // $delivery_date = date('Y-m-d H:i:s', date(strtotime('+ 4 hour', strtotime($pickup_date))));
 
             $api = $this->get_api();
+            
+            $delivery_coordinate['lat'] = explode(',', $order->get_shipping_address_2())[0];
+            $delivery_coordinate['long'] = explode(',', $order->get_shipping_address_2())[1];
 
-            $delivery_address = trim("$delivery_base_address $delivery_city, $delivery_state, $delivery_country");
-            $delivery_coordinate = $api->get_lat_lng($delivery_address);
             if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
-                $delivery_coordinate = $api->get_lat_lng("$delivery_city, $delivery_state, $delivery_country");
+                $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_city, $delivery_country");
             }
 
-            $pickup_address = trim("$pickup_base_address $pickup_city, $pickup_state, $pickup_country");
-            $pickup_coordinate = $api->get_lat_lng($pickup_address);
+            $pickup_coordinate['lat'] = explode(',', $pickup_coordinates)[0];
+            $pickup_coordinate['long'] = explode(',', $pickup_coordinates)[1];
             if (!isset($pickup_coordinate['lat']) && !isset($pickup_coordinate['long'])) {
-                $pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
+                $pickup_coordinate = $api->get_lat_lng("$pickup_base_address, $pickup_state, $pickup_country");
             }
 
             $key = $this->settings['mode'] == 'test' ? $this->settings['test_api_key'] : $this->settings['live_api_key'];
 
             $params = array(
                 'api_key'                 => $key,
-                'pickup_address'          => $pickup_address,
+                'pickup_address'          => $pickup_base_address,
                 'pickup_latitude'         => $pickup_coordinate['lat'],
                 'pickup_longitude'        => $pickup_coordinate['long'],
-                'delivery_address'        => $delivery_address,
+                'delivery_address'        => $delivery_base_address,
                 'delivery_latitude'       => $delivery_coordinate['lat'],
                 'delivery_longitude'      => $delivery_coordinate['long'],
                 'pickup_name'             => $sender_name,
@@ -248,10 +260,8 @@ class WC_Gokada_Delivery
                 'delivery_email'          => $receiver_email,
                 'pickup_datetime'         => $pickup_datetime
             );
-            // error_log(print_r($params, true));
 
             $res = $api->create_task($params);
-            // error_log(print_r($res, true));
 
             if ($res['order_id']) {
                 $status = $api->get_order_details(
@@ -271,7 +281,6 @@ class WC_Gokada_Delivery
                 update_post_meta($order_id, 'gokada_delivery_order_response', $res);
                 $note = sprintf(__('Shipment scheduled via Gokada delivery (Order Id: %s)'), $res['order_id']);
                 $order->add_order_note($note);
-                // error_log(print_r($status, true));
             }
             else {
                 update_post_meta($order_id, 'gokada_delivery_failed', true);
@@ -311,7 +320,6 @@ class WC_Gokada_Delivery
                     'api_key'    => $key,
                     'order_id'   =>  $gokada_order_id
                 ));
-                // error_log(print_r($res));
 
                 $order->update_status('cancelled');
                 update_post_meta($order_id, 'gokada_order_status', 'CANCELLED');
@@ -342,7 +350,6 @@ class WC_Gokada_Delivery
 			return;
         }
         
-        // error_log('update stats');
         $order = wc_get_order($order_id);
         $key = $this->settings['mode'] == 'test' ? $this->settings['test_api_key'] : $this->settings['live_api_key'];
 
@@ -354,7 +361,6 @@ class WC_Gokada_Delivery
             ));
 
             $order_status = $this->statuses[$res['status']];
-            // error_log($res['status']);
 
             update_post_meta($order_id, 'gokada_order_status', $order_status);
 
@@ -409,10 +415,15 @@ class WC_Gokada_Delivery
         }
     }
 
-    public function remove_address_2_checkout_fields($fields)
+    public function edit_checkout_fields($fields)
     {
-        unset($fields['billing']['billing_address_2']);
-        unset($fields['shipping']['shipping_address_2']);
+        $fields['billing']['billing_city']['required'] = false;
+        $fields['shipping']['shipping_city']['required'] = false;
+
+        $fields['billing']['billing_address_1']['type'] = 'hidden';
+
+        $fields['billing']['billing_address_2']['type'] = 'hidden';
+        $fields['shipping']['shipping_address_2']['type'] = 'hidden';
 
         return $fields;
     }
@@ -504,8 +515,6 @@ class WC_Gokada_Delivery
                 window.addEventListener('load', function(){
                     var el = document.getElementById("billing_address_1_field");
                     el.className += ' update_totals_on_change';
-                    el = document.getElementById("billing_address_1_field");
-                    el.className += ' update_totals_on_change'; 
                 });
             </script>
             <?php 
@@ -555,6 +564,50 @@ class WC_Gokada_Delivery
         }
         
         return $phone_number_build;
+    }
+
+    public function script_load($where) {
+        wp_enqueue_style('gokada-woocommerce', plugin_dir_url(__FILE__ ) . '/assets/css/gokada-woocommerce.css');
+        wp_enqueue_script('gokada-woocommerce', plugin_dir_url( __FILE__ ) . '/assets/js/gokada-woocommerce.js', array( 'jquery' ));
+        wp_localize_script('gokada-woocommerce', 'obj', $this->script_data());
+    }
+    
+    public function admin_script_load($where){
+        if ($where != 'woocommerce_page_wc-settings') {
+            return;
+        }
+
+        wp_enqueue_style('gokada-woocommerce', plugin_dir_url(__FILE__ ) . '/assets/css/gokada-woocommerce.css');
+        wp_enqueue_script('gokada-woocommerce', plugin_dir_url( __FILE__ ) . '/assets/js/gokada-woocommerce-admin.js', array( 'jquery' ));
+        wp_localize_script('gokada-woocommerce', 'obj', $this->script_data());
+    }
+
+    public function get_autocomplete_results() {
+        $query = $_POST['query'];
+        $url = 'https://love.gokada.ng/api/v1/promo/autocomplete?q=' . urlencode($query) . '&context=pickup&lat=0&lng=0&session=' . date('ymdHis');
+        $headers = array(
+            'Accept: application/json',
+            'Content-Type: application/json',
+        );
+
+        $req = curl_init();
+        curl_setopt($req, CURLOPT_URL, $url);
+        curl_setopt($req, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($req, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($req, CURLOPT_HEADER, 0);
+        
+        $res = curl_exec( $req );
+        curl_close($req);
+        print_r($res);
+        exit();
+    }
+
+    public function script_data() {
+        $data = array(
+            'ajax_url' => admin_url('admin-ajax.php')
+        );
+
+        return $data;
     }
 }
 

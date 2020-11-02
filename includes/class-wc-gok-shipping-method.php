@@ -64,7 +64,6 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 		$pickup_state_code = WC()->countries->get_base_state();
 		$pickup_country_code = WC()->countries->get_base_country();
 
-		$pickup_city = WC()->countries->get_base_city();
 		$pickup_state = WC()->countries->get_states($pickup_country_code)[$pickup_state_code];
 		$pickup_base_address = WC()->countries->get_base_address();
 
@@ -103,9 +102,27 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'options'      =>	array(
                                         'payment_submit' => 'When payment is complete (should be used with online payment methods)',
                                         'order_submit' => 'When order status is changed to Complete',
-                                        'scheduled_submit' => 'Schedule a daily time to submit all pending orders',
                                         'manual_submit' => 'Manually create deliveries from admin dashboard'
                 ),
+			),
+			'pickup_delay_same' => array(
+				'title'       => 	__('Enter pickup delay time in hours (Auto Delivery only)'),
+				'type'        => 	'text',
+				'description' => 	__("Number of hours to delay pickup time by. Defaults to 0"),
+				'default'     => 	__('0')
+			),
+			'scheduled_submit'       => array(
+				'title'       => __( 'Scheduled Deliveries' ),
+				'type'        => 'checkbox',
+				'description' => __( 'Schedule Deliveries allows you to schedule a daily time to submit all pending orders' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
+			),
+			'pickup_schedule_time' => array(
+				'title'       => 	__('Enter daily pickup time (For Scheduled Delivery)'),
+				'type'        => 	'time',
+				'default'	  =>     '14:00',
+				'description' => 	__("Allows you to specify daily time at which Gokada pickup should be made. Every Gokada order created after scheduled time gets shifted to the scheduled time next day"),
 			),
 			'shipping_handling_fee' => array(
 				'title'       => 	__('Additional handling fee applied'),
@@ -128,8 +145,8 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			),
 			'pickup_schedule_time' => array(
 				'title'       => 	__('Enter daily pickup time in hours (Scheduled Delivery only)'),
-				'type'        => 	'time',
-			),
+                'type'        => 	'time',
+            ),
 			'pickup_country' => array(
 				'title'       => 	__('Pickup Country'),
 				'type'        => 	'select',
@@ -141,20 +158,14 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'title'       => 	__('Pickup State'),
 				'type'        => 	'text',
 				'description' => 	__('Service available in Lagos Only'),
-				'default'     => 	__($pickup_state)
-			),
-			'pickup_city' => array(
-				'title'       => 	__('Pickup City'),
-				'type'        => 	'text',
-				'description' => 	__('The local area where the parcel will be picked up.'),
-				'default'     => 	__($pickup_city)
+				'default'     => 	__('Lagos')
 			),
 			'pickup_base_address' => array(
 				'title'       => 	__('Pickup Address'),
-				'type'        => 	'text',
+				'type'        => 	'hidden',
 				'description' => 	__('The street address where the parcel will be picked up.'),
 				'default'     => 	__($pickup_base_address)
-			),
+            ),
 			'sender_name' => array(
 				'title'       => 	__('Sender Name'),
 				'type'        => 	'text',
@@ -172,7 +183,11 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'type'        => 	'text',
 				'description' => 	__('Must be a valid email address'),
 				'default'     => 	__('')
-			),
+            ),
+            'pickup_coordinates' => array(
+                'type'        =>    'hidden',
+                'label_class' => array('hidden')
+            ),
 		);
 	}
 
@@ -184,7 +199,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 	 */
 	public function calculate_shipping($package = array())
 	{
-		// return;
+        // return;
 		if ($this->get_option('enabled') == 'no') {
 			return;
 		}
@@ -197,38 +212,42 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 		// country required for all shipments
 		if (!$package['destination']['country'] && 'NG' !== $package['destination']['country']) {
 			return;
-		}
+        }
+        
+        $api = wc_gokada_delivery()->get_api();
 
 		$delivery_country_code = $package['destination']['country'];
 		$delivery_state_code = $package['destination']['state'];
-		$delivery_city = $package['destination']['city'];
-		$delivery_base_address = $package['destination']['address'];
-
-		$delivery_state = WC()->countries->get_states($delivery_country_code)[$delivery_state_code];
-		$delivery_country = WC()->countries->get_countries()[$delivery_country_code];
+        $delivery_base_address = $package['destination']['address'];
+        $delivery_state = WC()->countries->get_states($delivery_country_code)[$delivery_state_code];
+        $delivery_country = WC()->countries->get_countries()[$delivery_country_code];
+        
+        if (!empty($package['destination']['address_2']) && strpos($package['destination']['address_2'], ',')) {
+            $delivery_coordinate['lat'] = explode(',', $package['destination']['address_2'])[0];
+            $delivery_coordinate['long'] = explode(',', $package['destination']['address_2'])[1];
+        }
 
 		if ('Lagos' !== $delivery_state) {
 			wc_add_notice('Gokada Delivery only available within Lagos', 'error');
 			return;
 		}
 
-		$api = wc_gokada_delivery()->get_api();
-
-		$pickup_city = $this->get_option('pickup_city');
 		$pickup_state = $this->get_option('pickup_state');
-		$pickup_base_address = $this->get_option('pickup_base_address');
-		$pickup_country = WC()->countries->get_countries()[$this->get_option('pickup_country')];
+        $pickup_base_address = $this->get_option('pickup_base_address');
+        $pickup_coordinates   = $this->get_option('pickup_coordinates');
+        $pickup_country = WC()->countries->get_countries()[$this->get_option('pickup_country')];
+        
+        if (strpos($pickup_coordinates, ',') !== false) {
+            $pickup_coordinate['lat'] = explode(',', $pickup_coordinates)[0];
+            $pickup_coordinate['long'] = explode(',', $pickup_coordinates)[1];
+        }
 
-		$delivery_address = trim("$delivery_base_address $delivery_city, $delivery_state, $delivery_country");
-		$delivery_coordinate = $api->get_lat_lng($delivery_address);
 		if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
-			$delivery_coordinate = $api->get_lat_lng("$delivery_city, $delivery_state, $delivery_country");
-		}
+            $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_state, $delivery_country");
+        }
 
-		$pickup_address = trim("$pickup_base_address $pickup_city, $pickup_state, $pickup_country");
-		$pickup_coordinate = $api->get_lat_lng($pickup_address);
 		if (!isset($pickup_coordinate['lat']) && !isset($pickup_coordinate['long'])) {
-			$pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
+            $pickup_coordinate = $api->get_lat_lng("$pickup_base_address, $pickup_state, $pickup_country");
 		}
 
         $key = $this->get_option('mode') == 'test' ? $this->get_option('test_api_key') : $this->get_option('live_api_key');
@@ -240,9 +259,9 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'delivery_latitude' => $delivery_coordinate['lat'],
 			'delivery_longitude' => $delivery_coordinate['long'],
 
-		);
+        );
 
-		$res = $api->calculate_pricing($params);
+        $res = $api->calculate_pricing($params);
 
 		if (!$res['fare']) {
 			wc_add_notice(__($res['message']), 'error');
