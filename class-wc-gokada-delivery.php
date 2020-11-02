@@ -6,12 +6,12 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  * Main Gokada Delivery Class.
  *
  * @class    WC_Gokada_Delivery
- * @version  1.0.0
+ * @version  1.2.0
  */
 class WC_Gokada_Delivery
 {
     /** @var string version number */
-    const VERSION = '1.0.0';
+    const VERSION = '1.2.0';
 
     /** @var \WC_Gokada_Delivery_API api for this plugin */
     public $api;
