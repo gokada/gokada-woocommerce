@@ -145,7 +145,8 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			),
 			'pickup_schedule_time' => array(
 				'title'       => 	__('Enter daily pickup time in hours (Scheduled Delivery only)'),
-				'type'        => 	'time',
+                'type'        => 	'time',
+            ),
 			'pickup_country' => array(
 				'title'       => 	__('Pickup Country'),
 				'type'        => 	'select',
