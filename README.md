@@ -87,6 +87,10 @@ Visit <a href="https://www.gokada.ng/faq" target="_blank">gokada.ng/faq</a>.
 
 
 ## Changelog ##
+
+### 1.2 - November, 2020 =
+* Get autocomplete results on address fields
+* Modify Scheduled delivery as a standalone order method
  
 ### 1.1 - October, 2020 =
 * Different fields for Test and Live API keys
