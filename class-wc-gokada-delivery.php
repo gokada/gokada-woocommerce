@@ -124,7 +124,7 @@ class WC_Gokada_Delivery
         // Add shipping icon to the shipping label
         add_filter('woocommerce_cart_shipping_method_full_label', array($this, 'add_shipping_icon'), PHP_INT_MAX, 2);
 
-        add_filter('woocommerce_checkout_fields', array($this, 'remove_address_2_checkout_fields'));
+        add_filter('woocommerce_checkout_fields', array($this, 'edit_checkout_fields'));
 
         add_filter('woocommerce_shipping_methods', array($this, 'add_shipping_method'));
 
@@ -144,9 +144,6 @@ class WC_Gokada_Delivery
         add_action('wp_ajax_nopriv_autocomplete', array($this, 'get_autocomplete_results'));
 
         add_action('wp_ajax_autocomplete', array($this, 'get_autocomplete_results'));
-
-        // Save delivery location coordinates to order meta data
-        add_action('woocommerce_checkout_create_order', array($this, 'save_location_to_order_meta'), 20, 2);
     }
 
     /**
@@ -200,9 +197,9 @@ class WC_Gokada_Delivery
             $sender_phone        = $this->normalize_number($this->settings['sender_phone_number']);
             $sender_email        = $this->settings['sender_email'];
             $pickup_base_address = $this->settings['pickup_base_address'];
-            $pickup_city         = $this->settings['pickup_state'];
             $pickup_state        = $this->settings['pickup_state'];
             $pickup_country      = $this->settings['pickup_country'];
+            $pickup_coordinates   = $this->settings['pickup_coordinates'];
             if (trim($pickup_country) == '') {
                 $pickup_country = 'NG';
             }
@@ -232,34 +229,27 @@ class WC_Gokada_Delivery
 
             $api = $this->get_api();
             
-            $delivery_address = trim("$delivery_base_address $delivery_city, $delivery_state, $delivery_country");
-            $delivery_lat = $order->get_meta('delivery_lat');
-            $delivery_lng = $order->get_meta('delivery_lng');
+            $delivery_coordinate['lat'] = explode(',', $order->get_shipping_address_2())[0];
+            $delivery_coordinate['long'] = explode(',', $order->get_shipping_address_2())[1];
 
-            if (isset($delivery_lat) && !empty($delivery_lat)) {
-                $delivery_coordinate['lat'] = $delivery_lat;
-                $delivery_coordinate['long'] = $delivery_lng;
-            } else {
-                $delivery_coordinate = $api->get_lat_lng($delivery_address);
-                if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
-                    $delivery_coordinate = $api->get_lat_lng("$delivery_city, $delivery_state, $delivery_country");
-                }
+            if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
+                $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_city, $delivery_country");
             }
 
-            $pickup_address = trim("$pickup_base_address $pickup_city, $pickup_state, $pickup_country");
-            $pickup_coordinate = $api->get_lat_lng($pickup_address);
+            $pickup_coordinate['lat'] = explode(',', $pickup_coordinates)[0];
+            $pickup_coordinate['long'] = explode(',', $pickup_coordinates)[1];
             if (!isset($pickup_coordinate['lat']) && !isset($pickup_coordinate['long'])) {
-                $pickup_coordinate = $api->get_lat_lng("$pickup_city, $pickup_state, $pickup_country");
+                $pickup_coordinate = $api->get_lat_lng("$pickup_base_address, $pickup_state, $pickup_country");
             }
 
             $key = $this->settings['mode'] == 'test' ? $this->settings['test_api_key'] : $this->settings['live_api_key'];
 
             $params = array(
                 'api_key'                 => $key,
-                'pickup_address'          => $pickup_address,
+                'pickup_address'          => $pickup_base_address,
                 'pickup_latitude'         => $pickup_coordinate['lat'],
                 'pickup_longitude'        => $pickup_coordinate['long'],
-                'delivery_address'        => $delivery_address,
+                'delivery_address'        => $delivery_base_address,
                 'delivery_latitude'       => $delivery_coordinate['lat'],
                 'delivery_longitude'      => $delivery_coordinate['long'],
                 'pickup_name'             => $sender_name,
@@ -425,13 +415,15 @@ class WC_Gokada_Delivery
         }
     }
 
-    public function remove_address_2_checkout_fields($fields)
+    public function edit_checkout_fields($fields)
     {
-        unset($fields['billing']['billing_address_2']);
-        unset($fields['shipping']['shipping_address_2']);
-        
-        unset($fields['billing']['billing_city']);
-        unset($fields['shipping']['shipping_city']);
+        $fields['billing']['billing_city']['required'] = false;
+        $fields['shipping']['shipping_city']['required'] = false;
+
+        $fields['billing']['billing_address_1']['type'] = 'hidden';
+
+        $fields['billing']['billing_address_2']['type'] = 'hidden';
+        $fields['shipping']['shipping_address_2']['type'] = 'hidden';
 
         return $fields;
     }
@@ -523,8 +515,6 @@ class WC_Gokada_Delivery
                 window.addEventListener('load', function(){
                     var el = document.getElementById("billing_address_1_field");
                     el.className += ' update_totals_on_change';
-                    el = document.getElementById("billing_address_1_field");
-                    el.className += ' update_totals_on_change'; 
                 });
             </script>
             <?php 
@@ -583,7 +573,10 @@ class WC_Gokada_Delivery
     }
     
     public function admin_script_load($where){
-        error_log($where);
+        if ($where != 'woocommerce_page_wc-settings') {
+            return;
+        }
+
         wp_enqueue_style('gokada-woocommerce', plugin_dir_url(__FILE__ ) . '/assets/css/gokada-woocommerce.css');
         wp_enqueue_script('gokada-woocommerce', plugin_dir_url( __FILE__ ) . '/assets/js/gokada-woocommerce-admin.js', array( 'jquery' ));
         wp_localize_script('gokada-woocommerce', 'obj', $this->script_data());
@@ -615,13 +608,6 @@ class WC_Gokada_Delivery
         );
 
         return $data;
-    }
-
-    public function save_location_to_order_meta( $order, $data ) {
-        if (isset($_POST['delivery_lat']) && !empty($_POST['delivery_lat'])) {
-            $order->update_meta_data('delivery_lat', sanitize_text_field($_POST['delivery_lat']));
-            $order->update_meta_data('delivery_lng', sanitize_text_field($_POST['delivery_lng']));
-        }
     }
 }
 
