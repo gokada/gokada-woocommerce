@@ -104,7 +104,7 @@ class WC_Gokada_Delivery
          * Actions
          */
         $shipping_is_scheduled_on = $this->settings['shipping_is_scheduled_on'];
-        if ($shipping_is_scheduled_on == 'payment_submit' || $shipping_is_scheduled_on == 'scheduled_submit') {
+        if ($shipping_is_scheduled_on == 'payment_submit') {
             add_action('woocommerce_payment_complete', array($this, 'create_order_shipping_task'));
         } else if ($shipping_is_scheduled_on == 'order_submit') {
             add_action('woocommerce_order_status_completed', array($this, 'create_order_shipping_task'));
@@ -215,7 +215,7 @@ class WC_Gokada_Delivery
                 $pickup_datetime = date('Y-m-d H:i:s', date(strtotime("+" . $pickup_delay . " hour", strtotime($pickup_date))));
             }
 
-            else if ($this->settings['shipping_is_scheduled_on'] == 'scheduled_submit' && $this->settings['pickup_schedule_time']) {
+            else if ($this->settings['scheduled_submit'] && $this->settings['pickup_schedule_time']) {
                 $scheduled_time = $this->settings['pickup_schedule_time'];
                 $present_time = date('H:i');
                 if ($present_time < $scheduled_time) {

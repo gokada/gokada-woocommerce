@@ -102,9 +102,27 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'options'      =>	array(
                                         'payment_submit' => 'When payment is complete (should be used with online payment methods)',
                                         'order_submit' => 'When order status is changed to Complete',
-                                        'scheduled_submit' => 'Schedule a daily time to submit all pending orders',
                                         'manual_submit' => 'Manually create deliveries from admin dashboard'
                 ),
+			),
+			'pickup_delay_same' => array(
+				'title'       => 	__('Enter pickup delay time in hours (Auto Delivery only)'),
+				'type'        => 	'text',
+				'description' => 	__("Number of hours to delay pickup time by. Defaults to 0"),
+				'default'     => 	__('0')
+			),
+			'scheduled_submit'       => array(
+				'title'       => __( 'Scheduled Deliveries' ),
+				'type'        => 'checkbox',
+				'description' => __( 'Schedule Deliveries allows you to schedule a daily time to submit all pending orders' ),
+				'default'     => 'no',
+				'desc_tip'    => true,
+			),
+			'pickup_schedule_time' => array(
+				'title'       => 	__('Enter daily pickup time (For Scheduled Delivery)'),
+				'type'        => 	'time',
+				'default'	  =>     '14:00',
+				'description' => 	__("Allows you to specify daily time at which Gokada pickup should be made. Every Gokada order created after scheduled time gets shifted to the scheduled time next day"),
 			),
 			'shipping_handling_fee' => array(
 				'title'       => 	__('Additional handling fee applied'),
@@ -128,6 +146,12 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'pickup_schedule_time' => array(
 				'title'       => 	__('Enter daily pickup time in hours (Scheduled Delivery only)'),
 				'type'        => 	'time',
+			'pickup_country' => array(
+				'title'       => 	__('Pickup Country'),
+				'type'        => 	'select',
+				'description' => 	__('Gokada Delivery/Pickup is only available for Nigeria'),
+				'default'     => 	'NG',
+				'options'     => 	array("NG" => "Nigeria", "" => "Please Select"),
 			),
 			'pickup_state' => array(
 				'title'       => 	__('Pickup State'),
