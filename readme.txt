@@ -2,6 +2,8 @@
 Minimum PHP version: 5.4
 Minimum WordPress version: 5.0
 Minimum Woocommerce version: 4.0
+License: GPLv3
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
 
