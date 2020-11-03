@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 class WC_Gokada_Delivery
 {
     /** @var string version number */
-    const VERSION = '1.2.0';
+    const VERSION = '1.2.1';
 
     /** @var \WC_Gokada_Delivery_API api for this plugin */
     public $api;
