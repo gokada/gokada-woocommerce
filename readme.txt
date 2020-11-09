@@ -74,11 +74,18 @@ Visit [gokada.ng/faq](https://www.gokada.ng/faq).
 
 
 == Changelog ==
+
+= 1.2 =
+* Get autocomplete results on address fields
+* Modify Scheduled delivery as a standalone order method
  
 = 1.1 =
 * Different fields for Test and Live API keys
 * Create orders manually from Order page
 * Scheduled orders are now created once the order status is "Processing"
+* Display errors on order page
+* Allow Retry of failed orders
+* Allow Bulk Order creation on manual submit mode
  
 = 1.0 =
 * First release
