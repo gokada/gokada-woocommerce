@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 class WC_Gokada_Delivery
 {
     /** @var string version number */
-    const VERSION = '1.2.0';
+    const VERSION = '1.2.1';
 
     /** @var \WC_Gokada_Delivery_API api for this plugin */
     public $api;
@@ -583,23 +583,23 @@ class WC_Gokada_Delivery
     }
 
     public function get_autocomplete_results() {
-        $query = $_POST['query'];
+        $query = sanitize_text_field($_POST['query']);
         $url = 'https://love.gokada.ng/api/v1/promo/autocomplete?q=' . urlencode($query) . '&context=pickup&lat=0&lng=0&session=' . date('ymdHis');
-        $headers = array(
-            'Accept: application/json',
-            'Content-Type: application/json',
-        );
 
-        $req = curl_init();
-        curl_setopt($req, CURLOPT_URL, $url);
-        curl_setopt($req, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($req, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($req, CURLOPT_HEADER, 0);
-        
-        $res = curl_exec( $req );
-        curl_close($req);
-        print_r($res);
-        exit();
+        $res = wp_remote_request($url);
+
+        if (is_wp_error($res)) {
+            throw new \Exception(__('You had an HTTP error connecting to Gokada delivery'));
+        } else {
+            $body = wp_remote_retrieve_body($res);
+            
+            if (null !== ($json = json_decode($body, true))) {
+                wp_send_json_success($json);
+            } else // Un-decipherable message
+                throw new Exception(__('There was an issue connecting to Gokada delivery. Try again later.'));
+        }
+
+        return false;
     }
 
     public function script_data() {
