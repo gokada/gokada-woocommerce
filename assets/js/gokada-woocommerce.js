@@ -37,7 +37,7 @@
             success: function(data) {
                 results_el.html('');
                 $('.autocomplete-results', parent_context).slideDown('fast');
-                data.forEach(result => {
+                data.data.forEach(result => {
                     if (result.lat && result.lng) {
                         $div = $('<div></div>');
                         $div.addClass('entry');

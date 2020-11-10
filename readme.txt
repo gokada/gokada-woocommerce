@@ -1,13 +1,16 @@
 === Gokada Delivery for WooCommerce ===
-Minimum PHP version: 5.4
-Minimum WordPress version: 5.0
+Tags: ecommerce, shipping, delivery, gokada delivery
+Tested up to: 5.0
+Requires PHP: 5.4
 Minimum Woocommerce version: 4.0
+Stable tag: 1.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
+
 == Description ==
 
-This is a Paystack payment gateway for WooCommerce.
+This is a Gokada Delivery plugin for WooCommerce.
 
 This plugin allows you to create Gokada deliveries for your WooCommerce orders. To get an API key, visit [business.gokada.ng](https://business.gokada.ng) and signup for a Gokada Developer account.
 
