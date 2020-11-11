@@ -1,6 +1,6 @@
 === Gokada Delivery for WooCommerce ===
 Tags: ecommerce, shipping, delivery, gokada delivery
-Tested up to: 5.0
+Tested up to: 5.5.3
 Requires PHP: 5.4
 Minimum Woocommerce version: 4.0
 Stable tag: 1.0
