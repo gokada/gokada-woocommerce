@@ -2,7 +2,7 @@
 
 **Minimum PHP version:** 5.4
 
-**Minimum WordPress version:** 5.0
+**Minimum WordPress version:** 5.5.3
 
 **Minimum Woocommerce version:** 4.0
 
