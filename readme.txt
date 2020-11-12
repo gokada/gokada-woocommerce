@@ -38,7 +38,7 @@ Gokada currently serves only __Lagos, Nigeria__.
 
 
 = Configure the plugin =
-To configure the plugin, go to __WooCommerce > Settings__ from the left hand menu, then click __Shipping__ from the top tab. You will see __Paystack__ as part of the available Shipping Options. Click on it to configure the payment gateway.
+To configure the plugin, go to __WooCommerce > Settings__ from the left hand menu, then click __Shipping__ from the top tab. You will see __Gokada__ as part of the available Shipping Options. Click on it to configure the shipping method.
 
 * __Enable/Disable__ - check the box to enable the Gokada Delivery shipping method.
 * __Mode__ - Select whether to enable test or live mode.
