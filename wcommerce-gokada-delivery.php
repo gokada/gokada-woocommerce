@@ -101,7 +101,11 @@ class WC_Gokada_Delivery_Loader
 
     public function wc_active_check()
     {
-        return in_array('woocommerce/woocommerce.php', $this->active_plugins) || array_key_exists('woocommerce/woocommerce.php', self::$active_plugins);
+        if ( class_exists( 'WooCommerce' ) ) {
+            return in_array('woocommerce/woocommerce.php', $this->active_plugins) || array_key_exists('woocommerce/woocommerce.php', self::$active_plugins);
+        } else {
+            return true;
+        }
     }
 
     /**
