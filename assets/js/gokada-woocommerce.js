@@ -48,7 +48,7 @@
                         $div.on('click', function() {
                             let lat = $(this).attr('data-lat');
                             let lng = $(this).attr('data-lng');
-                            $('#billing_address_2').val(`${lat},${lng}`);
+                            $('#billing_city').val(`${lat},${lng}`);
                             let address = $(this).text();
                             _this.val(address);
                             $("#billing_address_1").val(address);
