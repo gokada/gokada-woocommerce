@@ -81,18 +81,18 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'description' => 	__('Default is (Test), choose (Live) when your ready to start processing orders via Gokada Delivery'),
 				'default'     => 	'test',
 				'options'     => 	array('test' => 'Test', 'live' => 'Live'),
-			),
-			'test_api_key' => array(
-				'title'       => 	__('Test API Key'),
-				'type'        => 	'password',
-				'default'     => 	__('')
             ),
             'live_api_key' => array(
-				'title'       => 	__('Live API Key'),
+                'title'       => 	__('Live API Key'),
 				'type'        => 	'password',
 				'description'   => __( '<a href="https://business.gokada.ng/" target="_blank">Get your Gokada Developer API key</a>'),
 				'default'     => 	__('')
 			),
+            'test_api_key' => array(
+                'title'       => 	__('Test API Key'),
+                'type'        => 	'password',
+                'default'     => 	__('')
+            ),
 			'shipping_is_scheduled_on' => array(
 				'title'        =>	__('Schedule shipping task'),
 				'type'         =>	'select',
@@ -221,10 +221,10 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
         $delivery_base_address = $package['destination']['address'];
         $delivery_state = WC()->countries->get_states($delivery_country_code)[$delivery_state_code];
         $delivery_country = WC()->countries->get_countries()[$delivery_country_code];
-        
-        if (!empty($package['destination']['address_2']) && strpos($package['destination']['address_2'], ',')) {
-            $delivery_coordinate['lat'] = explode(',', $package['destination']['address_2'])[0];
-            $delivery_coordinate['long'] = explode(',', $package['destination']['address_2'])[1];
+
+        if (!empty($package['destination']['city']) && strpos($package['destination']['city'], ',')) {
+            $delivery_coordinate['lat'] = explode(',', $package['destination']['city'])[0];
+            $delivery_coordinate['long'] = explode(',', $package['destination']['city'])[1];
         }
 
 		if ('Lagos' !== $delivery_state) {

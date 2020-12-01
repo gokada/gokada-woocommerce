@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  * Main Gokada Delivery Class.
  *
  * @class    WC_Gokada_Delivery
- * @version  1.2.0
+ * @version  1.2.1
  */
 class WC_Gokada_Delivery
 {
@@ -229,11 +229,11 @@ class WC_Gokada_Delivery
 
             $api = $this->get_api();
             
-            $delivery_coordinate['lat'] = explode(',', $order->get_shipping_address_2())[0];
-            $delivery_coordinate['long'] = explode(',', $order->get_shipping_address_2())[1];
+            $delivery_coordinate['lat'] = explode(',', $order->get_shipping_city())[0];
+            $delivery_coordinate['long'] = explode(',', $order->get_shipping_city())[1];
 
             if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
-                $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_city, $delivery_country");
+                $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_country");
             }
 
             $pickup_coordinate['lat'] = explode(',', $pickup_coordinates)[0];
@@ -418,7 +418,8 @@ class WC_Gokada_Delivery
     public function edit_checkout_fields($fields)
     {
         $fields['billing']['billing_city']['required'] = false;
-        $fields['shipping']['shipping_city']['required'] = false;
+        $fields['billing']['billing_city']['type'] = 'hidden';
+        $fields['billing']['billing_city']['label'] = '';
 
         $fields['billing']['billing_address_1']['type'] = 'hidden';
 

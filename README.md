@@ -88,6 +88,8 @@ Visit <a href="https://www.gokada.ng/faq" target="_blank">gokada.ng/faq</a>.
 
 ## Changelog ##
 
+### 1.2.1 - November, 2020 =
+* Tweak: Use billing_city to store delivery latitude/longitude
 ### 1.2 - November, 2020 =
 * Get autocomplete results on address fields
 * Modify Scheduled delivery as a standalone order method
