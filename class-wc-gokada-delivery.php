@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  * Main Gokada Delivery Class.
  *
  * @class    WC_Gokada_Delivery
- * @version  1.2.0
+ * @version  1.2.1
  */
 class WC_Gokada_Delivery
 {
