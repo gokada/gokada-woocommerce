@@ -233,7 +233,7 @@ class WC_Gokada_Delivery
             $delivery_coordinate['long'] = explode(',', $order->get_shipping_city())[1];
 
             if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
-                $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_city, $delivery_country");
+                $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_country");
             }
 
             $pickup_coordinate['lat'] = explode(',', $pickup_coordinates)[0];
