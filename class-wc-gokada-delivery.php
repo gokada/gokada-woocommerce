@@ -6,12 +6,12 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  * Main Gokada Delivery Class.
  *
  * @class    WC_Gokada_Delivery
- * @version  1.2.1
+ * @version  1.3
  */
 class WC_Gokada_Delivery
 {
     /** @var string version number */
-    const VERSION = '1.2.1';
+    const VERSION = '1.3';
 
     /** @var \WC_Gokada_Delivery_API api for this plugin */
     public $api;
@@ -229,29 +229,12 @@ class WC_Gokada_Delivery
 
             $api = $this->get_api();
             
-            $delivery_coordinate['lat'] = explode(',', $order->get_shipping_city())[0];
-            $delivery_coordinate['long'] = explode(',', $order->get_shipping_city())[1];
-
-            if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
-                $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_country");
-            }
-
-            $pickup_coordinate['lat'] = explode(',', $pickup_coordinates)[0];
-            $pickup_coordinate['long'] = explode(',', $pickup_coordinates)[1];
-            if (!isset($pickup_coordinate['lat']) && !isset($pickup_coordinate['long'])) {
-                $pickup_coordinate = $api->get_lat_lng("$pickup_base_address, $pickup_state, $pickup_country");
-            }
-
             $key = $this->settings['mode'] == 'test' ? $this->settings['test_api_key'] : $this->settings['live_api_key'];
 
             $params = array(
                 'api_key'                 => $key,
                 'pickup_address'          => $pickup_base_address,
-                'pickup_latitude'         => $pickup_coordinate['lat'],
-                'pickup_longitude'        => $pickup_coordinate['long'],
                 'delivery_address'        => $delivery_base_address,
-                'delivery_latitude'       => $delivery_coordinate['lat'],
-                'delivery_longitude'      => $delivery_coordinate['long'],
                 'pickup_name'             => $sender_name,
                 'pickup_phone'            => $sender_phone,
                 'pickup_email'            => $sender_email,
@@ -420,8 +403,6 @@ class WC_Gokada_Delivery
         $fields['billing']['billing_city']['required'] = false;
         $fields['billing']['billing_city']['type'] = 'hidden';
         $fields['billing']['billing_city']['label'] = '';
-
-        $fields['billing']['billing_address_1']['type'] = 'hidden';
 
         $fields['billing']['billing_address_2']['type'] = 'hidden';
         $fields['shipping']['shipping_address_2']['type'] = 'hidden';

@@ -19,7 +19,7 @@ class WC_Gokada_Delivery_API
 
     public function create_task($params)
     {
-        return $this->send_request('api/developer/order_create', $params);
+        return $this->send_request('api/developer/woocommerce_order_create', $params);
     }
 
     public function cancel_task($params)
@@ -29,27 +29,7 @@ class WC_Gokada_Delivery_API
 
     public function calculate_pricing($params)
     {
-        return $this->send_request('api/developer/order_estimate', $params);
-    }
-
-    public function get_lat_lng($address)
-    {
-        $address = rawurlencode($address);
-        $coord   = get_transient('gokada_delivery_geocode_' . $address);
-        if (empty($coord)) {
-            $url  = 'http://nominatim.openstreetmap.org/?format=json&addressdetails=1&q=' . $address . '&format=json&limit=1';
-            $json = wp_remote_get($url);
-            if (200 === (int) wp_remote_retrieve_response_code($json)) {
-                $body = wp_remote_retrieve_body($json);
-                $json = json_decode($body, true);
-            }
-            if (!is_wp_error($json)) {
-                $coord['lat']  = $json[0]['lat'];
-                $coord['long'] = $json[0]['lon'];
-            }
-            set_transient('gokada_delivery_geocode_' . $address, $coord, DAY_IN_SECONDS * 90);
-        }
-        return $coord;
+        return $this->send_request('api/developer/woocommerce_order_estimate', $params);
     }
 
     /**

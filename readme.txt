@@ -75,6 +75,9 @@ Visit [gokada.ng/faq](https://www.gokada.ng/faq).
 
 == Changelog ==
 
+= 1.3 = 
+* Remove lat/lng API dependency
+
 = 1.2.1 =
 * Tweak: Use billing_city to store delivery latitude/longitude
 

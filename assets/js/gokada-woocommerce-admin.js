@@ -39,14 +39,9 @@
                     if (result.lat && result.lng) {
                         $div = $('<div></div>');
                         $div.addClass('entry');
-                        $div.attr('data-lat', result.lat);
-                        $div.attr('data-lng', result.lng);
                         $div.html(result.address);
 
                         $div.on('click', function() {
-                            let lat = $(this).attr('data-lat');
-                            let lng = $(this).attr('data-lng');
-                            $('#woocommerce_gokada_delivery_pickup_coordinates').val(`${lat},${lng}`);
                             let address = $(this).text();
                             $("#woocommerce_gokada_delivery_pickup_base_address").val(address);
                             _this.val(address);
