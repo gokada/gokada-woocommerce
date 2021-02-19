@@ -15,7 +15,7 @@
         return this;
     }
     
-    function autocomplete() {
+    function autocomplete(init = false) {
         let _this = $(this);
         let val = $(this).val();
         let parent_context = $(this).parent();
@@ -36,46 +36,47 @@
             data: data,
             success: function(data) {
                 results_el.html('');
-                $('.autocomplete-results', parent_context).slideDown('fast');
-                data.data.forEach(result => {
-                    if (result.lat && result.lng) {
-                        $div = $('<div></div>');
-                        $div.addClass('entry');
-                        $div.attr('data-lat', result.lat);
-                        $div.attr('data-lng', result.lng);
-                        $div.html(result.address);
-
-                        $div.on('click', function() {
-                            let lat = $(this).attr('data-lat');
-                            let lng = $(this).attr('data-lng');
-                            $('#billing_city').val(`${lat},${lng}`);
-                            let address = $(this).text();
-                            _this.val(address);
-                            $("#billing_address_1").val(address);
-                            $('.autocomplete-results', parent_context).slideUp('fast');
-                            $("body").trigger("update_checkout");
-                        });
-
-                        results_el.append($div);
-                    }
-                });
+                if (init) {
+                    let address = data.data[0].address;
+                    _this.val(address);
+                    $("body").trigger("update_checkout");
+                } else {
+                    $('.autocomplete-results', parent_context).slideDown('fast');                
+                    data.data.forEach(result => {
+                        if (result.lat && result.lng) {
+                            $div = $('<div></div>');
+                            $div.addClass('entry');
+                            $div.html(result.address);
+    
+                            $div.on('click', function() {
+                                let address = $(this).text();
+                                _this.val(address);
+                                $("#billing_address_1").val(address);
+                                $('.autocomplete-results', parent_context).slideUp('fast');
+                                $("body").trigger("update_checkout");
+                            });
+    
+                            results_el.append($div);
+                        }
+                    });
+                }
             },
             dataType: 'json'
         });
     }
     
     $(document).ready(function() {
-        $('#billing_address_1').attr('autocomplete', 'off')
+        $('#billing_address_1')
+            .attr('autocomplete', 'off')
             .after(`
-                <input type="text" value="" name="delivery_address" id="delivery_address" />
                 <div class="autocomplete-results"></div>
-            `);
-        $("#delivery_address").donetyping(function($callback) {
-            autocomplete.call(this);
-        });
+            `)
+            .donetyping(function($callback) {
+                autocomplete.call(this);
+            });
 
         if($('#billing_address_1').val() != '') {
-            $(this).val("");
+            autocomplete.call($('#billing_address_1'), {'init': true});
         }
     });
 })(jQuery);

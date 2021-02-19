@@ -88,6 +88,9 @@ Visit <a href="https://www.gokada.ng/faq" target="_blank">gokada.ng/faq</a>.
 
 ## Changelog ##
 
+### 1.3 - February, 2021 = 
+* Remove lat/lng API dependency
+
 ### 1.2.1 - November, 2020 =
 * Tweak: Use billing_city to store delivery latitude/longitude
 ### 1.2 - November, 2020 =

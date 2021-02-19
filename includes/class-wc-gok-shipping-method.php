@@ -163,7 +163,7 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 			'pickup_base_address' => array(
 				'title'       => 	__('Pickup Address'),
 				'type'        => 	'hidden',
-				'description' => 	__('The street address where the parcel will be picked up.'),
+				'description' => 	__('The address where the parcel will be picked up.'),
 				'default'     => 	__($pickup_base_address)
             ),
 			'sender_name' => array(
@@ -183,10 +183,6 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
 				'type'        => 	'text',
 				'description' => 	__('Must be a valid email address'),
 				'default'     => 	__('')
-            ),
-            'pickup_coordinates' => array(
-                'type'        =>    'hidden',
-                'label_class' => array('hidden')
             ),
 		);
 	}
@@ -222,43 +218,21 @@ class WC_Gokada_Delivery_Shipping_Method extends WC_Shipping_Method
         $delivery_state = WC()->countries->get_states($delivery_country_code)[$delivery_state_code];
         $delivery_country = WC()->countries->get_countries()[$delivery_country_code];
 
-        if (!empty($package['destination']['city']) && strpos($package['destination']['city'], ',')) {
-            $delivery_coordinate['lat'] = explode(',', $package['destination']['city'])[0];
-            $delivery_coordinate['long'] = explode(',', $package['destination']['city'])[1];
-        }
-
-		if ('Lagos' !== $delivery_state) {
+        if ('Lagos' !== $delivery_state) {
 			wc_add_notice('Gokada Delivery only available within Lagos', 'error');
 			return;
 		}
 
 		$pickup_state = $this->get_option('pickup_state');
         $pickup_base_address = $this->get_option('pickup_base_address');
-        $pickup_coordinates   = $this->get_option('pickup_coordinates');
         $pickup_country = WC()->countries->get_countries()[$this->get_option('pickup_country')];
         
-        if (strpos($pickup_coordinates, ',') !== false) {
-            $pickup_coordinate['lat'] = explode(',', $pickup_coordinates)[0];
-            $pickup_coordinate['long'] = explode(',', $pickup_coordinates)[1];
-        }
-
-		if (!isset($delivery_coordinate['lat']) && !isset($delivery_coordinate['long'])) {
-            $delivery_coordinate = $api->get_lat_lng("$delivery_base_address, $delivery_state, $delivery_country");
-        }
-
-		if (!isset($pickup_coordinate['lat']) && !isset($pickup_coordinate['long'])) {
-            $pickup_coordinate = $api->get_lat_lng("$pickup_base_address, $pickup_state, $pickup_country");
-		}
-
         $key = $this->get_option('mode') == 'test' ? $this->get_option('test_api_key') : $this->get_option('live_api_key');
 
 		$params = array(
 			'api_key' => $key,
-			'pickup_latitude' => $pickup_coordinate['lat'],
-			'pickup_longitude' => $pickup_coordinate['long'],
-			'delivery_latitude' => $delivery_coordinate['lat'],
-			'delivery_longitude' => $delivery_coordinate['long'],
-
+			'pickup_address' => "$pickup_base_address, $pickup_state, $pickup_country",
+			'delivery_address' => "$delivery_base_address, $delivery_state, $delivery_country",
         );
 
         $res = $api->calculate_pricing($params);
