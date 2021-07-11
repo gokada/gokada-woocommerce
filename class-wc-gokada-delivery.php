@@ -6,12 +6,12 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  * Main Gokada Delivery Class.
  *
  * @class    WC_Gokada_Delivery
- * @version  1.3
+ * @version  1.3.1
  */
 class WC_Gokada_Delivery
 {
     /** @var string version number */
-    const VERSION = '1.3';
+    const VERSION = '1.3.1';
 
     /** @var \WC_Gokada_Delivery_API api for this plugin */
     public $api;
@@ -566,7 +566,7 @@ class WC_Gokada_Delivery
 
     public function get_autocomplete_results() {
         $query = sanitize_text_field($_POST['query']);
-        $url = 'https://love.gokada.ng/api/v1/promo/autocomplete?q=' . urlencode($query) . '&context=pickup&lat=0&lng=0&session=' . date('ymdHis');
+        $url = 'https://order.gokada.ng/api/v1/promo/autocomplete?q=' . urlencode($query) . '&context=pickup&lat=0&lng=0&session=' . date('ymdHis');
 
         $res = wp_remote_request($url);
 

@@ -75,6 +75,9 @@ Visit [gokada.ng/faq](https://www.gokada.ng/faq).
 
 == Changelog ==
 
+= 1.3.1 = 
+* Update API base URL
+
 = 1.3 = 
 * Remove lat/lng API dependency
 

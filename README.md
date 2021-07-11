@@ -88,6 +88,8 @@ Visit <a href="https://www.gokada.ng/faq" target="_blank">gokada.ng/faq</a>.
 
 ## Changelog ##
 
+### 1.3.1 - July, 2021 = 
+* Update API base URL
 ### 1.3 - February, 2021 = 
 * Remove lat/lng API dependency
 

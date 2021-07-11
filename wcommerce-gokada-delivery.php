@@ -4,7 +4,7 @@
  * Plugin Name: Gokada Delivery for WooCommerce
  * Plugin URI: https://github.com/gokada/gokada-wordpress
  * Description: Handle your Woocommerce deliveries with Gokada Delivery
- * Version: 1.3
+ * Version: 1.3.1
  * Author: Gokada
  * Author URI: https://gokada.ng/
  * Developer: Bolaji A., Delaney S.
