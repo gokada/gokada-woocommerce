@@ -566,7 +566,7 @@ class WC_Gokada_Delivery
 
     public function get_autocomplete_results() {
         $query = sanitize_text_field($_POST['query']);
-        $url = 'https://order.gokada.ng/api/v1/promo/autocomplete?q=' . urlencode($query) . '&context=pickup&lat=0&lng=0&session=' . date('ymdHis');
+        $url = 'https://api.gokada.ng/api/v1/promo/autocomplete?q=' . urlencode($query) . '&context=pickup&lat=0&lng=0&session=' . date('ymdHis');
 
         $res = wp_remote_request($url);
 
