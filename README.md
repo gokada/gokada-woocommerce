@@ -2,7 +2,7 @@
 
 **Minimum PHP version:** 5.4
 
-**Minimum WordPress version:** 5.5.3
+**Minimum WordPress version:** 5.0
 
 **Minimum Woocommerce version:** 4.0
 
@@ -87,6 +87,9 @@ Visit <a href="https://www.gokada.ng/faq" target="_blank">gokada.ng/faq</a>.
 
 
 ## Changelog ##
+
+### 1.3.2 - July, 2021 = 
+* Update autocomplete endpoint URL
 
 ### 1.3.1 - July, 2021 = 
 * Update API base URL
